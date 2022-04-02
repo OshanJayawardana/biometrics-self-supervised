@@ -1,0 +1,11 @@
+indx = np.arange(4)
+np.random.shuffle(indx)
+if indx[0]==0:
+    return DA_Flip(x)
+elif indx[0]==1:
+    return DA_Permutation(x)
+elif indx[0]==2:
+    return DA_Flip(x)
+else:
+    y = DA_Jitter(x)
+    return DA_Flip(y)
