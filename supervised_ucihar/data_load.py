@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from scipy.ndimage import gaussian_filter1d
+import os
 
 def base_loader(mthd, window_size=128, domain=1):
     x_train=np.array([])
@@ -8,8 +9,8 @@ def base_loader(mthd, window_size=128, domain=1):
         for axs in ['x','y','z']:
             #path=str(os.path.abspath(os.getcwd()))
             #path+=r"\UCI HAR\uci-human-activity-recognition\original\UCI HAR Dataset\train\Inertial Signals"
-            path=r"./UCI HAR/uci-human-activity-recognition/original/UCI HAR Dataset/"+mthd+"/Inertial Signals"
-            file = open(path+r"/"+atrbt+"_"+axs+"_"+mthd+".txt",'r')
+            path=os.getcwd()+os.sep+"UCI HAR"+os.sep+"uci-human-activity-recognition"+os.sep+"original"+os.sep+"UCI HAR Dataset"+os.sep+mthd+os.sep+"Inertial Signals"
+            file = open(path+os.sep+atrbt+"_"+axs+"_"+mthd+".txt",'r')
             data=(np.array(file.read().split()))
             data=data.reshape(len(data)//window_size,window_size)
             data=data.reshape(data.shape[0],data.shape[1],1)
@@ -21,9 +22,9 @@ def base_loader(mthd, window_size=128, domain=1):
                 x_train=np.append(x_train,data,axis=2)
     
     if domain:
-        file=open(r"./UCI HAR/uci-human-activity-recognition/original/UCI HAR Dataset/"+mthd+"/Inertial Signals/y_"+mthd+".txt",'r') #for activity recognition
+        file=open(os.getcwd()+os.sep+"UCI HAR"+os.sep+"uci-human-activity-recognition"+os.sep+"original"+os.sep+"UCI HAR Dataset"+os.sep+mthd+os.sep+"Inertial Signals"+os.sep+"y_"+mthd+".txt",'r') #for activity recognition
     else:
-        file=open(r"./UCI HAR/uci-human-activity-recognition/original/UCI HAR Dataset/"+mthd+"/Inertial Signals/y_"+mthd+"_sub.txt",'r') #for user authentication
+        file=open(os.getcwd()+os.sep+"UCI HAR"+os.sep+"uci-human-activity-recognition"+os.sep+"original"+os.sep+"UCI HAR Dataset"+os.sep+mthd+os.sep+"Inertial Signals"+os.sep+"y_"+mthd+"_sub.txt",'r') #for user authentication
     y_train=np.array(file.read().split())
     y_train=y_train.astype(int)
     y_train=y_train-1
