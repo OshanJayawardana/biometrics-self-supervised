@@ -30,7 +30,7 @@ for samples_per_class in num_samp:
         x_L, y_L, x_L_val, y_L_val  = clas_data_load(samples_per_class, x_train_L=x_train, y_train_L=y_train, isall=isall, domain=domain)
         ks = 3
         con =4
-        inputs = Input(shape=(128,9))
+        inputs = Input(shape=(128,3))
         x = Conv1D(filters=16*con,kernel_size=ks,strides=1, padding='same')(inputs)
         x = BatchNormalization()(x)
         x = ReLU()(x)

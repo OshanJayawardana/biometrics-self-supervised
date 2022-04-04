@@ -5,7 +5,8 @@ import os
 
 def base_loader(mthd, window_size=128, domain=1):
     x_train=np.array([])
-    for atrbt in ['body_acc','total_acc','body_gyro']:
+    #for atrbt in ['body_acc','total_acc','body_gyro']:
+    for atrbt in ['total_acc']:
         for axs in ['x','y','z']:
             #path=str(os.path.abspath(os.getcwd()))
             #path+=r"\UCI HAR\uci-human-activity-recognition\original\UCI HAR Dataset\train\Inertial Signals"
@@ -93,9 +94,9 @@ def clas_data_load(samples_per_class, x_train_L, y_train_L, isall=False, domain=
             for j in range(num_labels):
                 if y_train_L[i]==j and cnt[j]<samples_per_class:
                     if x_L.shape[0]==0:
-                        x_L=x_train_L[i].reshape((1,128,9))
+                        x_L=x_train_L[i].reshape((1,128,3))
                     else:
-                        x_L=np.append(x_L,x_train_L[i].reshape((1,128,9)),axis=0)
+                        x_L=np.append(x_L,x_train_L[i].reshape((1,128,3)),axis=0)
                     y_L=np.append(y_L,j)
                     cnt[j]+=1
             if sum(cnt)>=samples_per_class*num_labels:
@@ -116,9 +117,9 @@ def clas_data_load(samples_per_class, x_train_L, y_train_L, isall=False, domain=
             for j in range(num_labels):
                 if y_train_L[k]==j and cnt[j]<(samples_per_class*20/80):
                     if x_L_val.shape[0]==0:
-                        x_L_val=x_train_L[k].reshape((1,128,9))
+                        x_L_val=x_train_L[k].reshape((1,128,3))
                     else:
-                        x_L_val=np.append(x_L_val,x_train_L[k].reshape((1,128,9)),axis=0)
+                        x_L_val=np.append(x_L_val,x_train_L[k].reshape((1,128,3)),axis=0)
                     y_L_val=np.append(y_L_val,j)
                     cnt[j]+=1
             if sum(cnt)>=(samples_per_class*20/80)*num_labels:
