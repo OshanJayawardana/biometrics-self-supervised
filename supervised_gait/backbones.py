@@ -1,8 +1,5 @@
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import Input, Model
 from tensorflow.keras import regularizers
-from tensorflow.keras.layers import Conv1D, Dense, MaxPooling1D, Concatenate, BatchNormalization, ReLU, Add, GlobalAveragePooling1D, Flatten, Dropout, Conv1DTranspose, GlobalMaxPooling1D
+from tensorflow.keras.layers import Conv1D, Conv2D, MaxPooling1D, Concatenate, BatchNormalization, ReLU, Add, GlobalAveragePooling1D, Dropout, GlobalMaxPooling1D, MaxPooling2D, Reshape
 
 def incepblock(inputs, KS, CR):
     bottleneck = Conv1D(filters=CR*3 ,kernel_size=1,strides=1, activation='relu', use_bias=False, padding='same')(inputs)
@@ -87,28 +84,27 @@ def resnetblock_final(inputs, KS, CR, skip=True):
 
     return outputs
     
-def CAE(inputs):
+def idnet(inputs):
     #best num_filters 3, 5, 7
     #best kernel sizes 8,8,8
     
     #new best num_filters 24, 40, 56
     #new best kernel sizes 8,8,8
-    con=1
-    x = Conv1D(filters=24, kernel_size=8, use_bias=False, padding='same', kernel_regularizer=regularizers.l2(0.01*con))(inputs)#64 #10
+    con=0.01
+    x = Conv1D(filters=24, kernel_size=10, use_bias=False, padding='same', kernel_regularizer=regularizers.l2(0.01*con))(inputs)#64 #10
+    x = BatchNormalization()(x)
+    x = ReLU()(x)
+    #x = Dropout(0.35)(x)
+    x = Conv1D(filters=40, kernel_size=10, use_bias=False, padding='same', kernel_regularizer=regularizers.l2(0.01*con))(x)#64 #10
     x = BatchNormalization()(x)
     x = ReLU()(x)
     x = MaxPooling1D(pool_size=2, strides=2, padding='same')(x)
-    x = Dropout(0.35)(x)
-    x = Conv1D(filters=40, kernel_size=8, use_bias=False, padding='same', kernel_regularizer=regularizers.l2(0.01*con))(x)#64 #10
+    out_shape = x.shape
+    x = Reshape(target_shape=(1,out_shape[1],out_shape[2]))(x)
+    x = Conv2D(filters=56, kernel_size=(10,4), use_bias=False, padding='same', kernel_regularizer=regularizers.l2(0.01*con))(x)#64 #10
     x = BatchNormalization()(x)
     x = ReLU()(x)
-    x = MaxPooling1D(pool_size=2, strides=2, padding='same')(x)
-    #x = Dropout(0.1)(x)
-    x = Conv1D(filters=56, kernel_size=8, use_bias=False, padding='same', kernel_regularizer=regularizers.l2(0.01*con))(x)#64 #10
-    x = BatchNormalization()(x)
-    x = ReLU()(x)
-    x = MaxPooling1D(pool_size=2, strides=2, padding='same')(x)
-    #x = Dropout(0.05)(x)
+    x = MaxPooling2D(pool_size=(2,2), strides=(2,2), padding='same')(x)
 
     #x = Conv1DTranspose(filters=64, kernel_size=8)(x)
     #x = BatchNormalization()(x)

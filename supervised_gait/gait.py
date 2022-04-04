@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 import tensorflow_addons as tfa
 from tensorflow.keras import Input, Model
-from tensorflow.keras.layers import Conv1D, Dense, MaxPooling1D, BatchNormalization, ReLU, Dropout
+from tensorflow.keras.layers import Dense, Flatten
 
 from backbones import *
 from data_load import *
@@ -23,18 +23,20 @@ ks = 3
 con =4
 num_classes=50
 inputs = Input(shape=(50,3))
-x = Conv1D(filters=16*con,kernel_size=ks,strides=1, padding='same')(inputs)
-x = BatchNormalization()(x)
-x = ReLU()(x)
-x = MaxPooling1D(pool_size=4, strides=4)(x)
-x = Dropout(rate=0.1)(x)
-x = resnetblock(x, CR=32*con, KS=ks)
-x = resnetblock(x, CR=32*con, KS=ks)
-x = resnetblock(x, CR=64*con, KS=ks)
-x = resnetblock(x, CR=64*con, KS=ks)
-x = resnetblock(x, CR=128*con, KS=ks)
-x = resnetblock(x, CR=128*con, KS=ks)
-x = resnetblock_final(x, CR=128*con, KS=ks)
+#x = Conv1D(filters=16*con,kernel_size=ks,strides=1, padding='same')(inputs)
+#x = BatchNormalization()(x)
+#x = ReLU()(x)
+#x = MaxPooling1D(pool_size=4, strides=4)(x)
+#x = Dropout(rate=0.1)(x)
+#x = resnetblock(x, CR=32*con, KS=ks)
+#x = resnetblock(x, CR=32*con, KS=ks)
+#x = resnetblock(x, CR=64*con, KS=ks)
+#x = resnetblock(x, CR=64*con, KS=ks)
+#x = resnetblock(x, CR=128*con, KS=ks)
+#x = resnetblock(x, CR=128*con, KS=ks)
+#x = resnetblock_final(x, CR=128*con, KS=ks)
+x = idnet(inputs)
+x = Flatten()(x)
 x = Dense(64, activation='relu')(x)
 x = Dense(32, activation='relu')(x)
 outputs = Dense(num_classes, activation='softmax')(x)
