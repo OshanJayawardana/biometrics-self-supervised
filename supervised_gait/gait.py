@@ -9,8 +9,8 @@ from backbones import *
 from data_load import *
 
 frame_size = 50
-#path = os.path.join(os.getcwd(), '..', 'gait_dataset', "IDNet's dataset", "user_coordinates")
-path = r"gait_dataset\IDNet's dataset\user_coordinates"
+path = os.path.join(os.getcwd(), '..', 'gait_dataset', "IDNet's dataset", "user_coordinates")
+#path = r"gait_dataset\IDNet's dataset\user_coordinates"
 
 x_train, y_train = data_loader(path, frame_size=50)
 print(x_train.shape)
@@ -54,3 +54,7 @@ metric = tfa.metrics.CohenKappa(num_classes=num_classes, sparse_labels=True)
 metric.update_state(y_true=y_test , y_pred=resnettssd.predict(x_test))
 result = metric.result()
 print('kappa score: ',result.numpy())
+
+inp = input("do you want to save the model? (y/) :")
+if inp=="y":
+  resnettssd.save(os.path.join("models", "gait_supervised_resnet"))
