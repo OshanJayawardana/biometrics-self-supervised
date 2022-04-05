@@ -13,7 +13,7 @@ num_classes=35
 path = os.path.join(os.getcwd(), '..', 'gait_dataset', "IDNet's dataset", "user_coordinates")
 #path = r"gait_dataset\IDNet's dataset\user_coordinates"
 
-x_train, y_train = data_loader(path, frame_size=frame_size, num_classes=num_classes)
+x_train, y_train = data_loader_6(path, frame_size=frame_size, num_classes=num_classes)
 print(x_train.shape)
 x_train = norma(x_train)
 
@@ -22,7 +22,7 @@ x_test, x_val, y_test, y_val = train_test_split(x_test, y_test, test_size=0.5)
 
 ks = 3
 con =4
-inputs = Input(shape=(frame_size,3))
+inputs = Input(shape=(frame_size,6))
 #x = Conv1D(filters=16*con,kernel_size=ks,strides=1, padding='same')(inputs)
 #x = BatchNormalization()(x)
 #x = ReLU()(x)
