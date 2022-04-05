@@ -3,3 +3,5 @@ contrastive_ucihar/UCI HAR/*
 supervised_ucihar/UCI HAR/*
 mindid_dataset/*
 gait_dataset/*
+**/models/*
+**/UCI HAR/*
