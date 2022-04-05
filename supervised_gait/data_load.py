@@ -3,10 +3,10 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 
-def data_loader(path, frame_size=50):
+def data_loader(path, num_classes, frame_size=50):
     x_train=np.array([])
     y_train=[]
-    for user_id in range(1,51):
+    for user_id in range(1,num_classes+1):
         for session_id in range(1,16):
             try:
                 filename = "u"+str(user_id).rjust(3, '0')+"_w"+str(session_id).rjust(3, '0')+"_data_user_coord.csv"
@@ -22,7 +22,12 @@ def data_loader(path, frame_size=50):
                     y_train += [user_id-1]*data.shape[0]
             except FileNotFoundError:
                 continue
-    return x_train, np.array(y_train)
+    indx = np.arange(len(y_train))
+    y_train = np.array(y_train)
+    np.random.shuffle(indx)
+    x_train = x_train[indx]
+    y_train = y_train[indx]
+    return x_train, y_train
 
 def norma(x_all):
   x = np.reshape(x_all,(x_all.shape[0]*x_all.shape[1],x_all.shape[2]))
