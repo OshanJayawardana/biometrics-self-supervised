@@ -9,21 +9,21 @@ from backbones import *
 from data_load import *
 
 frame_size = 50
-num_classes=35
+num_classes=50
 path = os.path.join(os.getcwd(), '..', 'gait_dataset', "IDNet's dataset", "user_coordinates")
-#path = r"gait_dataset\IDNet's dataset\user_coordinates"
+#path = os.path.join(os.getcwd(), '..', 'gait_dataset', "idnet")
 
-x_train, y_train = data_loader_6(path, frame_size=frame_size, num_classes=num_classes)
+x_train, y_train = data_loader(path, frame_size=frame_size, num_classes=num_classes)
 print(x_train.shape)
 x_train = norma(x_train)
 
 x_train, x_test, y_train, y_test = train_test_split(x_train, np.array(y_train), test_size=0.4)
 x_test, x_val, y_test, y_val = train_test_split(x_test, y_test, test_size=0.5)
 
-ks = 3
-con =4
-inputs = Input(shape=(frame_size,6))
-#x = Conv1D(filters=16*con,kernel_size=ks,strides=1, padding='same')(inputs)
+ks = 10
+con =1
+inputs = Input(shape=(frame_size,3))
+#x = Conv1D(filters=16*con,kernel_size=ks,strides=1, padding='same')(inputs) 
 #x = BatchNormalization()(x)
 #x = ReLU()(x)
 #x = MaxPooling1D(pool_size=4, strides=4)(x)
@@ -37,14 +37,17 @@ inputs = Input(shape=(frame_size,6))
 #x = resnetblock_final(x, CR=128*con, KS=ks)
 x = idnet(inputs)
 x = Flatten()(x)
-x = Dense(80, activation='relu')(x)
+x = Dense(4096, activation='relu')(x)
+x = Dense(512, activation='relu')(x)
+x = Dense(64, activation='relu')(x)
 outputs = Dense(num_classes, activation='softmax')(x)
 resnettssd = Model(inputs, outputs)
 resnettssd.summary()
 
 callback = tf.keras.callbacks.EarlyStopping(monitor='val_accuracy', restore_best_weights=True, patience=5)
-lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate = 0.0001, decay_rate=0.9, decay_steps=1000000)# 0.0001, 0.9, 100000
+lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate = 0.0001, decay_rate=0.95, decay_steps=1000000)# 0.0001, 0.9, 100000
 optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
+#optimizer = tf.keras.optimizers.Adam()
 resnettssd.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'] )
 history = resnettssd.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=100, callbacks=callback, batch_size=128)
 
