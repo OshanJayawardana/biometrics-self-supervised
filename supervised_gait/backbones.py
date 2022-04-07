@@ -1,5 +1,5 @@
 from tensorflow.keras import regularizers
-from tensorflow.keras.layers import Conv1D, Conv2D, MaxPooling1D, Concatenate, BatchNormalization, ReLU, Add, GlobalAveragePooling1D, Dropout, GlobalMaxPooling1D, MaxPooling2D, Reshape
+from tensorflow.keras.layers import Conv1D, Conv2D, MaxPooling1D, Concatenate, BatchNormalization, ReLU, Add, GlobalAveragePooling1D, Dropout, GlobalMaxPooling1D, MaxPooling2D, Reshape, LSTM, Flatten
 
 def incepblock(inputs, KS, CR):
     bottleneck = Conv1D(filters=CR*3 ,kernel_size=1,strides=1, activation='relu', use_bias=False, padding='same')(inputs)
@@ -195,3 +195,14 @@ def CAE_Origin(inputs):
 #x = resnetblock_final(x, KS=5, CR=128)
 
 #x = GlobalAveragePooling1D()(direct)
+
+def lstm_model(inputs):
+    x = LSTM(32, return_sequences=True)(inputs)
+    x = Dropout(rate=0.3)(x)
+    x = LSTM(64, return_sequences=True)(x)
+    x = Dropout(rate=0.4)(x)
+    x = LSTM(128, return_sequences=True)(x)
+    x = Dropout(rate=0.5)(x)
+    x = LSTM(256, return_sequences=True)(x)
+    x = Dropout(rate=0.6)(x)
+    return x
