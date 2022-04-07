@@ -29,7 +29,7 @@ def data_loader(path, num_classes, frame_size=50):
     y_train = y_train[indx]
     return x_train, y_train
 
-def data_loader_6(path, num_classes, frame_size=50):
+def data_loader_8(path, num_classes, frame_size=50):
     x_train=np.array([])
     y_train=[]
     for user_id in range(1,num_classes+1):
@@ -40,10 +40,12 @@ def data_loader_6(path, num_classes, frame_size=50):
                 filename_gyro = os.path.join(path,foldername,foldername+"_gyroscope.log")
                 data_acc = pd.read_csv(filename_acc, header=0, sep="\t")
                 data_gyro = pd.read_csv(filename_gyro, header=0, sep="\t")
-                data = [np.array(data_acc.accelerometer_x_data), np.array(data_acc.accelerometer_y_data), np.array(data_acc.accelerometer_z_data),
-                        np.array(data_gyro.gyroscope_x_data), np.array(data_gyro.gyroscope_y_data), np.array(data_gyro.gyroscope_z_data)]
-                min_ln = min([data[i].shape[0] for i in range(6)])
-                data = [data[i][:min_ln] for i in range(6)]
+                acc_x, acc_y, acc_z = np.array(data_acc.accelerometer_x_data), np.array(data_acc.accelerometer_y_data), np.array(data_acc.accelerometer_z_data)
+                gyro_x, gyro_y, gyro_z = np.array(data_gyro.gyroscope_x_data), np.array(data_gyro.gyroscope_y_data), np.array(data_gyro.gyroscope_z_data)
+                data = [acc_x, acc_y, acc_z, np.sqrt(acc_x*acc_x + acc_y*acc_y + acc_z*acc_z),
+                        gyro_x, gyro_y, gyro_z, np.sqrt(gyro_x*gyro_x + gyro_y*gyro_y + gyro_z*gyro_z)]
+                min_ln = min([data[i].shape[0] for i in range(8)])
+                data = [data[i][:min_ln] for i in range(8)]
                 data = np.array(data).T
                 data=np.lib.stride_tricks.sliding_window_view(data, (frame_size,data.shape[1]))[::frame_size//2, :]
                 data=data.reshape(data.shape[0],data.shape[2],data.shape[3])

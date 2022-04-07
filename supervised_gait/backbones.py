@@ -91,7 +91,7 @@ def idnet(inputs):
     #new best num_filters 24, 40, 56
     #new best kernel sizes 8,8,8
     con=0.001
-    x = Conv1D(filters=40, kernel_size=3, kernel_regularizer=regularizers.l2(0.01*con))(inputs)#64 #10
+    x = Conv1D(filters=40, kernel_size=10, kernel_regularizer=regularizers.l2(0.01*con))(inputs)#64 #10
     x = BatchNormalization()(x)
     x = ReLU()(x)
     #x = Dropout(0.35)(x)
@@ -101,10 +101,50 @@ def idnet(inputs):
     #x = MaxPooling1D(pool_size=2, strides=2, padding='same')(x)
     out_shape = x.shape
     x = Reshape(target_shape=(out_shape[1],out_shape[2], 1))(x)
-    x = Conv2D(filters=80, kernel_size=(10,10), kernel_regularizer=regularizers.l2(0.01*con))(x)#64 #10
+    x = Conv2D(filters=80, kernel_size=(10,4), kernel_regularizer=regularizers.l2(0.01*con))(x)#64 #10
     x = BatchNormalization()(x)
     x = ReLU()(x)
     x = MaxPooling2D(pool_size=(2,2), strides=(2,2))(x)
+
+    #x = Conv1DTranspose(filters=64, kernel_size=8)(x)
+    #x = BatchNormalization()(x)
+    #x = ReLU()(x)
+    #x = Conv1DTranspose(filters=64, kernel_size=8)(x)
+    #x = BatchNormalization()(x)
+    #x = ReLU()(x)
+    #x = Conv1DTranspose(filters=32, kernel_size=8)(x)
+    #x = BatchNormalization()(x)
+    #x = ReLU()(x)
+    return x
+    
+def basic(inputs):
+    #best num_filters 3, 5, 7
+    #best kernel sizes 8,8,8
+    
+    #new best num_filters 24, 40, 56
+    #new best kernel sizes 8,8,8
+    con=0.001
+    x = Conv1D(filters=16, kernel_size=5, kernel_regularizer=regularizers.l2(0.01*con))(inputs)#64 #10
+    x = BatchNormalization()(x)
+    x = ReLU()(x)
+    x = Conv1D(filters=32, kernel_size=5, kernel_regularizer=regularizers.l2(0.01*con))(x)#64 #10
+    x = BatchNormalization()(x)
+    x = ReLU()(x)
+    x = Conv1D(filters=64, kernel_size=5, kernel_regularizer=regularizers.l2(0.01*con))(x)#64 #10
+    x = BatchNormalization()(x)
+    x = ReLU()(x)
+    x = Conv1D(filters=128, kernel_size=5, kernel_regularizer=regularizers.l2(0.01*con))(x)#64 #10
+    x = BatchNormalization()(x)
+    x = ReLU()(x)
+    
+    out_shape = x.shape
+    x = Reshape(target_shape=(out_shape[1],out_shape[2], 1))(x)
+    x = Conv2D(filters=80, kernel_size=(2,10), kernel_regularizer=regularizers.l2(0.01*con))(x)#64 #10
+    x = BatchNormalization()(x)
+    x = ReLU()(x)
+    x = MaxPooling2D(pool_size=(2,2), strides=(2,2))(x)
+    
+    #x = MaxPooling1D(pool_size=2, strides=2)(x)
 
     #x = Conv1DTranspose(filters=64, kernel_size=8)(x)
     #x = BatchNormalization()(x)
