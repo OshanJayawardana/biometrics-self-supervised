@@ -1,5 +1,6 @@
 from tensorflow.keras import regularizers
-from tensorflow.keras.layers import Conv1D, Conv2D, MaxPooling1D, Concatenate, BatchNormalization, ReLU, Add, GlobalAveragePooling1D, Dropout, GlobalMaxPooling1D, MaxPooling2D, Reshape
+from tensorflow.keras.layers import Conv1D, Conv2D, MaxPooling1D, Concatenate, BatchNormalization, ReLU, Add, GlobalAveragePooling1D, Dropout, GlobalMaxPooling1D, MaxPooling2D, Reshape, LSTM
+from tensorflow.keras.activations import tanh
 
 def incepblock(inputs, KS, CR):
     bottleneck = Conv1D(filters=CR*3 ,kernel_size=1,strides=1, activation='relu', use_bias=False, padding='same')(inputs)
@@ -91,20 +92,21 @@ def idnet(inputs):
     #new best num_filters 24, 40, 56
     #new best kernel sizes 8,8,8
     con=0.001
-    x = Conv1D(filters=40, kernel_size=10, kernel_regularizer=regularizers.l2(0.01*con))(inputs)#64 #10
+    x = Conv1D(filters=20, kernel_size=10, kernel_regularizer=regularizers.l2(0.01*con))(inputs)#64 #10
     x = BatchNormalization()(x)
     x = ReLU()(x)
     #x = Dropout(0.35)(x)
     x = Conv1D(filters=40, kernel_size=10, kernel_regularizer=regularizers.l2(0.01*con))(x)#64 #10
     x = BatchNormalization()(x)
-    x = ReLU()(x)
-    #x = MaxPooling1D(pool_size=2, strides=2, padding='same')(x)
-    out_shape = x.shape
-    x = Reshape(target_shape=(out_shape[1],out_shape[2], 1))(x)
-    x = Conv2D(filters=80, kernel_size=(10,4), kernel_regularizer=regularizers.l2(0.01*con))(x)#64 #10
-    x = BatchNormalization()(x)
-    x = ReLU()(x)
-    x = MaxPooling2D(pool_size=(2,2), strides=(2,2))(x)
+    x = tanh(x)
+    x = MaxPooling1D(pool_size=2, strides=2, padding='same')(x)
+    
+    #out_shape = x.shape
+    #x = Reshape(target_shape=(out_shape[1],out_shape[2], 1))(x)
+    #x = Conv2D(filters=40, kernel_size=(10,4), kernel_regularizer=regularizers.l2(0.01*con))(x)#64 #10
+    #x = BatchNormalization()(x)
+    #x = ReLU()(x)
+    #x = MaxPooling2D(pool_size=(2,2), strides=(2,2))(x)
 
     #x = Conv1DTranspose(filters=64, kernel_size=8)(x)
     #x = BatchNormalization()(x)
@@ -136,13 +138,14 @@ def basic(inputs):
     x = Conv1D(filters=128, kernel_size=5, kernel_regularizer=regularizers.l2(0.01*con))(x)#64 #10
     x = BatchNormalization()(x)
     x = ReLU()(x)
+    x = MaxPooling1D(pool_size=2, strides=2)(x)
     
-    out_shape = x.shape
-    x = Reshape(target_shape=(out_shape[1],out_shape[2], 1))(x)
-    x = Conv2D(filters=80, kernel_size=(2,10), kernel_regularizer=regularizers.l2(0.01*con))(x)#64 #10
-    x = BatchNormalization()(x)
-    x = ReLU()(x)
-    x = MaxPooling2D(pool_size=(2,2), strides=(2,2))(x)
+    #out_shape = x.shape
+    #x = Reshape(target_shape=(out_shape[1],out_shape[2], 1))(x)
+    #x = Conv2D(filters=80, kernel_size=(2,10), kernel_regularizer=regularizers.l2(0.01*con))(x)#64 #10
+    #x = BatchNormalization()(x)
+    #x = ReLU()(x)
+    #x = MaxPooling2D(pool_size=(2,2), strides=(2,2))(x)
     
     #x = MaxPooling1D(pool_size=2, strides=2)(x)
 
@@ -207,6 +210,17 @@ def CAE_Origin(inputs):
     x = ReLU()(x)
     x = MaxPooling1D(pool_size=2, strides=2, padding='same')(x)
     return x
+    
+def lstm_model(inputs):
+  x = LSTM(32, return_sequences=True)(inputs)
+  x = Dropout(rate=0.3)(x)
+  x = LSTM(64, return_sequences=True)(x)
+  x = Dropout(rate=0.4)(x)
+  x = LSTM(128, return_sequences=True)(x)
+  x = Dropout(rate=0.5)(x)
+  x = LSTM(256, return_sequences=True)(x)
+  x = Dropout(rate=0.6)(x)
+  return x
 
 #x = layers.Flatten()(inputs)
 #x = layers.BatchNormalization()(x)
