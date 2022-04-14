@@ -33,7 +33,7 @@ def data_loader_8(path, num_classes, frame_size=50):
     x_train=np.array([])
     y_train=[]
     for user_id in range(1,num_classes+1):
-        for session_id in range(1,16):
+        for session_id in range(1,2):
             try:
                 foldername = "u"+str(user_id).rjust(3, '0')+"_w"+str(session_id).rjust(3, '0')
                 filename_acc = os.path.join(path,foldername,foldername+"_accelerometer.log")
@@ -67,7 +67,9 @@ def data_loader_8(path, num_classes, frame_size=50):
     np.random.shuffle(indx)
     x_train = x_train[indx]
     y_train = y_train[indx]
-    return x_train, y_train
+    unique, counts = np.unique(y_train, return_counts=True)
+    weights = dict(zip(unique, (1/counts)/sum(1/counts)))
+    return x_train, y_train, weights
     
 def data_loader_csv(path, frame_size=130):
   data_acc = pd.read_csv(path)

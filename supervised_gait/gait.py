@@ -4,23 +4,27 @@ import tensorflow as tf
 import tensorflow_addons as tfa
 from tensorflow.keras import Input, Model
 from tensorflow.keras.layers import Dense, Flatten
+from sklearn.utils import class_weight
 
 from backbones import *
 from data_load import *
+from losses import *
 
-frame_size = 130
+frame_size = 50 #130
 num_classes=50
 #path = os.path.join(os.getcwd(), '..', 'gait_dataset', "IDNet's dataset", "user_coordinates")
-#path = os.path.join(os.getcwd(), '..', 'gait_dataset', "idnet")
-path = os.path.join(os.getcwd(), '..', 'gait_dataset', "IDNet_dataset.csv")
+path = os.path.join(os.getcwd(), '..', 'gait_dataset', "idnet")
+#path = os.path.join(os.getcwd(), '..', 'gait_dataset', "IDNet_dataset.csv")
 
 #x_train, y_train = data_loader_csv(path, frame_size=frame_size, num_classes=num_classes)
-x_train, y_train = data_loader_csv(path, frame_size=frame_size)
+x_train, y_train, weights = data_loader_8(path, frame_size=frame_size, num_classes=num_classes)
 print(x_train.shape)
 x_train = norma(x_train)
 
 x_train, x_test, y_train, y_test = train_test_split(x_train, np.array(y_train), test_size=0.4)
 x_test, x_val, y_test, y_val = train_test_split(x_test, y_test, test_size=0.5)
+unique, counts = np.unique(y_train, return_counts=True)
+weights = dict(zip(unique, (1/counts)/sum(1/counts)))
 
 ks = 10
 con =1
@@ -34,7 +38,7 @@ inputs = Input(shape=(frame_size,4))
 #x = resnetblock(x, CR=64*con, KS=ks)
 #x = resnetblock(x, CR=128*con, KS=ks)
 #x = resnetblock_final(x, CR=128*con, KS=ks)
-x = idnet(inputs)
+x = lstm_model(inputs)
 x = Flatten()(x)
 x = Dense(64, activation='relu')(x)
 outputs = Dense(num_classes, activation='softmax')(x)
@@ -46,7 +50,7 @@ lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_ra
 optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
 #optimizer = tf.keras.optimizers.Adam()
 resnettssd.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'] )
-history = resnettssd.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=100, callbacks=callback, batch_size=128)
+history = resnettssd.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=100, callbacks=callback, batch_size=128, class_weight=weights)
 
 results = resnettssd.evaluate(x_test,y_test)
 print("test acc:", results[1])
