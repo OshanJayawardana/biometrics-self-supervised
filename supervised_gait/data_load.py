@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 
 def data_loader(path, num_classes, frame_size=50):
     x_train=np.array([])
@@ -29,11 +30,11 @@ def data_loader(path, num_classes, frame_size=50):
     y_train = y_train[indx]
     return x_train, y_train
 
-def data_loader_8(path, num_classes, frame_size=50):
+def data_loader_8(path, num_classes, num_sessions, frame_size=50):
     x_train=np.array([])
     y_train=[]
     for user_id in range(1,num_classes+1):
-        for session_id in range(1,2):
+        for session_id in range(1, num_sessions+1):
             try:
                 foldername = "u"+str(user_id).rjust(3, '0')+"_w"+str(session_id).rjust(3, '0')
                 filename_acc = os.path.join(path,foldername,foldername+"_accelerometer.log")
@@ -89,6 +90,22 @@ def data_loader_csv(path, frame_size=130):
   x_train = data[:,:,:4]
   y_train = data[:,0,-1]-1
   return x_train, y_train
+  
+def label_aware_split(x,y,train_split=0.6, test_split=0.5):
+  x_train, x_val, x_test, y_train, y_val, y_test = np.array([]), np.array([]), np.array([]), np.array([]), np.array([]), np.array([])
+  for i in range(np.min(y), np.max(y)+1):
+    indx = (y==i).nonzero()[0]
+    x_temp = x[indx]
+    y_temp = y[indx]
+    x_train_temp, x_test_temp, y_train_temp, y_test_temp = train_test_split(x_temp, y_temp, test_size=1-train_split)
+    x_test_temp, x_val_temp, y_test_temp, y_val_temp = train_test_split(x_test_temp, y_test_temp, test_size=1-test_split)
+    if x_train.shape[0]==0:
+      x_train, x_val, x_test, y_train, y_val, y_test = x_train_temp, x_val_temp, x_test_temp, y_train_temp, y_val_temp, y_test_temp
+    else:
+      x_train, y_train = np.concatenate((x_train, x_train_temp), axis=0), np.concatenate((y_train,y_train_temp), axis=0)
+      x_val, y_val = np.concatenate((x_val, x_val_temp), axis=0), np.concatenate((y_val, y_val_temp), axis=0)
+      x_test, y_test = np.concatenate((x_test, x_test_temp), axis=0), np.concatenate((y_test, y_test_temp), axis=0)
+  return x_train, y_train, x_val, y_val, x_test, y_test
 
 def norma(x_all):
   x = np.reshape(x_all,(x_all.shape[0]*x_all.shape[1],x_all.shape[2]))

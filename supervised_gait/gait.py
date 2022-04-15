@@ -12,17 +12,17 @@ from losses import *
 
 frame_size = 50 #130
 num_classes=50
+num_sessions=16
 #path = os.path.join(os.getcwd(), '..', 'gait_dataset', "IDNet's dataset", "user_coordinates")
 path = os.path.join(os.getcwd(), '..', 'gait_dataset', "idnet")
 #path = os.path.join(os.getcwd(), '..', 'gait_dataset', "IDNet_dataset.csv")
 
 #x_train, y_train = data_loader_csv(path, frame_size=frame_size, num_classes=num_classes)
-x_train, y_train, weights = data_loader_8(path, frame_size=frame_size, num_classes=num_classes)
+x_train, y_train, weights = data_loader_8(path, frame_size=frame_size, num_classes=num_classes, num_sessions=num_sessions)
 print(x_train.shape)
 x_train = norma(x_train)
 
-x_train, x_test, y_train, y_test = train_test_split(x_train, np.array(y_train), test_size=0.4)
-x_test, x_val, y_test, y_val = train_test_split(x_test, y_test, test_size=0.5)
+x_train, y_train, x_val, y_val, x_test, y_test = label_aware_split(x_train,y_train)
 unique, counts = np.unique(y_train, return_counts=True)
 weights = dict(zip(unique, (1/counts)/sum(1/counts)))
 
