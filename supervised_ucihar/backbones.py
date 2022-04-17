@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import Input, Model
 from tensorflow.keras import regularizers
-from tensorflow.keras.layers import Conv1D, Dense, MaxPooling1D, Concatenate, BatchNormalization, ReLU, Add, GlobalAveragePooling1D, Flatten, Dropout, Conv1DTranspose, GlobalMaxPooling1D
+from tensorflow.keras.layers import Conv1D, Dense, MaxPooling1D, Concatenate, BatchNormalization, ReLU, Add, GlobalAveragePooling1D, Flatten, Dropout, Conv1DTranspose, GlobalMaxPooling1D, LSTM
 
 def incepblock(inputs, KS, CR):
     bottleneck = Conv1D(filters=CR*3 ,kernel_size=1,strides=1, activation='relu', use_bias=False, padding='same')(inputs)
@@ -170,6 +170,17 @@ def CAE_Origin(inputs):
     x = BatchNormalization()(x)
     x = ReLU()(x)
     x = MaxPooling1D(pool_size=2, strides=2, padding='same')(x)
+    return x
+    
+def lstm_model(inputs):
+    x = LSTM(32, return_sequences=True)(inputs)
+    x = Dropout(rate=0.3)(x)
+    x = LSTM(64, return_sequences=True)(x)
+    x = Dropout(rate=0.4)(x)
+    x = LSTM(128, return_sequences=True)(x)
+    x = Dropout(rate=0.5)(x)
+    x = LSTM(256, return_sequences=True)(x)
+    x = Dropout(rate=0.6)(x)
     return x
 
 #x = layers.Flatten()(inputs)

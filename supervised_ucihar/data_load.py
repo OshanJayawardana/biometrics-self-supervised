@@ -6,6 +6,7 @@ import os
 def base_loader(mthd, window_size=128, domain=1):
     x_train=np.array([])
     #for atrbt in ['body_acc','total_acc','body_gyro']:
+    mag = np.array([])
     for atrbt in ['total_acc']:
         for axs in ['x','y','z']:
             #path=str(os.path.abspath(os.getcwd()))
@@ -13,15 +14,23 @@ def base_loader(mthd, window_size=128, domain=1):
             path=os.getcwd()+os.sep+"UCI HAR"+os.sep+"uci-human-activity-recognition"+os.sep+"original"+os.sep+"UCI HAR Dataset"+os.sep+mthd+os.sep+"Inertial Signals"
             file = open(path+os.sep+atrbt+"_"+axs+"_"+mthd+".txt",'r')
             data=(np.array(file.read().split()))
+            data=data.astype(float)
+            if mag.shape[0]==0:
+                mag=data*data
+            else:
+                mag=mag+data*data
             data=data.reshape(len(data)//window_size,window_size)
             data=data.reshape(data.shape[0],data.shape[1],1)
-            data=data.astype(float)
             #data=data[:,:data.shape[1]//2,:]
             if x_train.size==0:
                 x_train=data
             else:
                 x_train=np.append(x_train,data,axis=2)
     
+    mag = np.sqrt(mag)
+    data = mag.reshape(len(mag)//window_size,window_size)
+    data=data.reshape(data.shape[0],data.shape[1],1)            
+    x_train=np.append(x_train,data,axis=2)
     if domain:
         file=open(os.getcwd()+os.sep+"UCI HAR"+os.sep+"uci-human-activity-recognition"+os.sep+"original"+os.sep+"UCI HAR Dataset"+os.sep+mthd+os.sep+"Inertial Signals"+os.sep+"y_"+mthd+".txt",'r') #for activity recognition
     else:
@@ -38,35 +47,15 @@ def data_fetch(norma,filt,filt_sigma ,mix=True, domain=1):
     num_sample=x_train.shape[0]
     x_all = np.concatenate((x_train,x_test), axis=0)
     y_all = np.concatenate((y_train,y_test), axis=0)
+    x_train, y_train, x_test, y_test =0,0,0,0
     
     if mix:  
       indx = np.arange(x_all.shape[0])
       np.random.shuffle(indx)
       x_all = x_all[indx]
       y_all = y_all[indx]
-      
-    if filt:
-      x = np.reshape(x_all,(x_all.shape[0]*x_all.shape[1],x_all.shape[2]))
-      x_filt = gaussian_filter1d(x, filt_sigma, axis=1)
-      x = x_filt
-      x_all = np.reshape(x,(x_all.shape[0],x_all.shape[1],x_all.shape[2]))
     
-    if norma:
-      x = np.reshape(x_all,(x_all.shape[0]*x_all.shape[1],x_all.shape[2]))
-      print(x.shape)
-      scaler = StandardScaler()
-      normalized_x = scaler.fit_transform(x)
-      x_all = np.reshape(normalized_x,(x_all.shape[0],x_all.shape[1],x_all.shape[2]))
-      print(x_train.shape)
-      
-    
-    x_train = x_all[:num_sample]
-    x_test = x_all[num_sample:]
-    
-    y_train = y_all[:num_sample]
-    y_test = y_all[num_sample:]
-    
-    return x_train, y_train, x_test, y_test
+    return x_all, y_all
     
 def clas_data_load(samples_per_class, x_train_L, y_train_L, isall=False, domain=1):
     indx = np.arange(x_train_L.shape[0])
@@ -127,5 +116,10 @@ def clas_data_load(samples_per_class, x_train_L, y_train_L, isall=False, domain=
     
     return x_L, y_L, x_L_val, y_L_val              
         
-      
-    
+def norma(x_all):
+  x = np.reshape(x_all,(x_all.shape[0]*x_all.shape[1],x_all.shape[2]))
+  scaler = StandardScaler()
+  x = scaler.fit_transform(x)
+  x_all = np.reshape(x,(x_all.shape[0],x_all.shape[1],x_all.shape[2]))
+  x=[]
+  return x_all
