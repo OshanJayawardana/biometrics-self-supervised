@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from scipy.ndimage import gaussian_filter1d
+from sklearn.model_selection import train_test_split
 import os
 
 def base_loader(mthd, window_size=128, domain=1):
@@ -38,7 +39,6 @@ def base_loader(mthd, window_size=128, domain=1):
     y_train=np.array(file.read().split())
     y_train=y_train.astype(int)
     y_train=y_train-1
-    
     return x_train, y_train
 
 def data_fetch(norma,filt,filt_sigma ,mix=True, domain=1):
@@ -54,7 +54,9 @@ def data_fetch(norma,filt,filt_sigma ,mix=True, domain=1):
       np.random.shuffle(indx)
       x_all = x_all[indx]
       y_all = y_all[indx]
-    
+    unique, counts = np.unique(y_all, return_counts=True)
+    count = dict(zip(unique, counts))
+    print(count)
     return x_all, y_all
     
 def clas_data_load(samples_per_class, x_train_L, y_train_L, isall=False, domain=1):
@@ -123,3 +125,19 @@ def norma(x_all):
   x_all = np.reshape(x,(x_all.shape[0],x_all.shape[1],x_all.shape[2]))
   x=[]
   return x_all
+  
+def label_aware_split(x,y,train_split=0.6, test_split=0.5):
+  x_train, x_val, x_test, y_train, y_val, y_test = np.array([]), np.array([]), np.array([]), np.array([]), np.array([]), np.array([])
+  for i in range(np.min(y), np.max(y)+1):
+    indx = (y==i).nonzero()[0]
+    x_temp = x[indx]
+    y_temp = y[indx]
+    x_train_temp, x_test_temp, y_train_temp, y_test_temp = train_test_split(x_temp, y_temp, test_size=1-train_split)
+    x_test_temp, x_val_temp, y_test_temp, y_val_temp = train_test_split(x_test_temp, y_test_temp, test_size=1-test_split)
+    if x_train.shape[0]==0:
+      x_train, x_val, x_test, y_train, y_val, y_test = x_train_temp, x_val_temp, x_test_temp, y_train_temp, y_val_temp, y_test_temp
+    else:
+      x_train, y_train = np.concatenate((x_train, x_train_temp), axis=0), np.concatenate((y_train,y_train_temp), axis=0)
+      x_val, y_val = np.concatenate((x_val, x_val_temp), axis=0), np.concatenate((y_val, y_val_temp), axis=0)
+      x_test, y_test = np.concatenate((x_test, x_test_temp), axis=0), np.concatenate((y_test, y_test_temp), axis=0)
+  return x_train, y_train, x_val, y_val, x_test, y_test
