@@ -5,3 +5,4 @@ mindid_dataset/*
 gait_dataset/*
 **/models/*
 **/UCI HAR/*
+**/data/*
