@@ -45,18 +45,18 @@ def shortcut(inputs, direct):
     return outputs
 
 def resnetblock(inputs, KS, CR, skip=True):
-    conv1 = Conv1D(filters=CR*3 ,kernel_size=KS, strides=1, padding='same')(inputs)
+    conv1 = Conv1D(filters=CR ,kernel_size=KS, strides=1, padding='same')(inputs)
     conv1 = BatchNormalization()(conv1)
     conv1 = ReLU()(conv1)
 
-    conv2 = Conv1D(filters=CR*3 ,kernel_size=KS, strides=1, padding='same')(conv1)
+    conv2 = Conv1D(filters=CR ,kernel_size=KS, strides=1, padding='same')(conv1)
     conv2 = BatchNormalization()(conv2)
     conv2 = ReLU()(conv2)
 
-    sum_ = Conv1D(filters=CR*3 ,kernel_size=KS, strides=1, padding='same')(conv2)
+    sum_ = Conv1D(filters=CR ,kernel_size=KS, strides=1, padding='same')(conv2)
 
     if skip:
-        conv4 = Conv1D(filters=CR*3 ,kernel_size=1, strides=1, padding='same')(inputs)
+        conv4 = Conv1D(filters=CR ,kernel_size=1, strides=1, padding='same')(inputs)
         sum_ = Add()([sum_, conv4])
 
     sum_ = BatchNormalization()(sum_)
@@ -66,18 +66,18 @@ def resnetblock(inputs, KS, CR, skip=True):
     return sum_ 
     
 def resnetblock_final(inputs, KS, CR, skip=True):
-    conv1 = Conv1D(filters=CR*3 ,kernel_size=KS, strides=1, padding='same')(inputs)
+    conv1 = Conv1D(filters=CR ,kernel_size=KS, strides=1, padding='same')(inputs)
     conv1 = BatchNormalization()(conv1)
     conv1 = ReLU()(conv1)
 
-    conv2 = Conv1D(filters=CR*3 ,kernel_size=KS, strides=1, padding='same')(conv1)
+    conv2 = Conv1D(filters=CR ,kernel_size=KS, strides=1, padding='same')(conv1)
     conv2 = BatchNormalization()(conv2)
     conv2 = ReLU()(conv2)
 
-    sum_ = Conv1D(filters=CR*3 ,kernel_size=KS, strides=1, padding='same')(conv2)
+    sum_ = Conv1D(filters=CR ,kernel_size=KS, strides=1, padding='same')(conv2)
 
     if skip:
-        conv4 = Conv1D(filters=CR*3 ,kernel_size=1, strides=1, padding='same')(inputs)
+        conv4 = Conv1D(filters=CR ,kernel_size=1, strides=1, padding='same')(inputs)
         sum_ = Add()([sum_, conv4])
 
     sum_ = BatchNormalization()(sum_)

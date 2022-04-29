@@ -11,8 +11,8 @@ from data_load import *
 from losses import *
 
 frame_size = 50 #130
-num_classes=50
-num_sessions=16
+num_classes=20
+num_sessions=2
 #path = os.path.join(os.getcwd(), '..', 'gait_dataset', "IDNet's dataset", "user_coordinates")
 path = os.path.join(os.getcwd(), '..', 'gait_dataset', "idnet")
 #path = os.path.join(os.getcwd(), '..', 'gait_dataset', "IDNet_dataset.csv")
@@ -27,18 +27,18 @@ unique, counts = np.unique(y_train, return_counts=True)
 weights = dict(zip(unique, (1/counts)/sum(1/counts)))
 
 ks = 10
-con =1
+con =3
 inputs = Input(shape=(frame_size,4))
-#x = Conv1D(filters=16*con,kernel_size=ks,strides=1, padding='same')(inputs) 
-#x = BatchNormalization()(x)
-#x = ReLU()(x)
-#x = MaxPooling1D(pool_size=4, strides=4)(x)
-#x = Dropout(rate=0.1)(x)
+x = Conv1D(filters=16*con,kernel_size=ks,strides=1, padding='same')(inputs) 
+x = BatchNormalization()(x)
+x = ReLU()(x)
+x = MaxPooling1D(pool_size=4, strides=4)(x)
+x = Dropout(rate=0.1)(x)
 #x = resnetblock(x, CR=32*con, KS=ks)
 #x = resnetblock(x, CR=64*con, KS=ks)
 #x = resnetblock(x, CR=128*con, KS=ks)
-#x = resnetblock_final(x, CR=128*con, KS=ks)
-x = lstm_model(inputs)
+x = resnetblock_final(x, CR=32*con, KS=ks)
+#x = lstm_model(inputs)
 x = Flatten()(x)
 x = Dense(64, activation='relu')(x)
 outputs = Dense(num_classes, activation='softmax')(x)

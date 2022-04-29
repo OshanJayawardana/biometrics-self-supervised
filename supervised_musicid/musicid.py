@@ -23,17 +23,17 @@ x_train, x_test, y_train, y_test = train_test_split(x_train, y_train, test_size=
 x_test, x_val, y_test, y_val = train_test_split(x_test, y_test, test_size=0.5)
 
 ks = 3
-con =1
+con =3
 inputs = Input(shape=(frame_size, x_train.shape[-1]))
 x = Conv1D(filters=16*con,kernel_size=ks,strides=1, padding='same')(inputs) 
 x = BatchNormalization()(x)
 x = ReLU()(x)
 x = MaxPooling1D(pool_size=4, strides=4)(x)
 x = Dropout(rate=0.1)(x)
-# = resnetblock(x, CR=32*con, KS=ks)
+#x = resnetblock(x, CR=32*con, KS=ks)
 #x = resnetblock(x, CR=64*con, KS=ks)
 #x = resnetblock(x, CR=128*con, KS=ks)
-#x = resnetblock_final(x, CR=128*con, KS=ks)
+x = resnetblock_final(x, CR=32*con, KS=ks)
 #x = lstm_model(inputs)
 x = Flatten()(x)
 x = Dense(256, activation='relu')(x)

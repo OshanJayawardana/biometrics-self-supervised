@@ -22,14 +22,14 @@ def data_load_raw(path, frame_size=30, fs = 220, lowcut =0.5, highcut = 4.0):
   y_train=[]
   for folder in (["TestingSet", "TestingSet_secret", "TrainingSet"]):
     for user in range(1,21):
-      for session in range(1,6):
+      for session in range(1,2):
         for typ in (["fav", "same"]):
           filename = "user"+str(user)+"_"+typ+"_session"+str(session)+".csv"
           filepath = os.path.join(path, folder, filename)
           try:
             file = pd.read_csv(filepath)
             #data = np.array(file.iloc[:, 1:5])
-            raw_data = np.array(file.iloc[:, 21:25])
+            raw_data = np.array(file.iloc[:, 1:25])
             #data = np.array(file.iloc[:, [9,12,13,16]])
             data = np.array([])
             for chnl in range(raw_data.shape[0]):
@@ -48,6 +48,7 @@ def data_load_raw(path, frame_size=30, fs = 220, lowcut =0.5, highcut = 4.0):
             else:
               x_train  = np.concatenate((x_train,data), axis=0)
               y_train += [user-1]*data.shape[0]
+            print(folder)
           except (FileNotFoundError, IndexError):
             continue
   print(x_train.shape)
@@ -57,6 +58,7 @@ def data_load(path, frame_size=30):
   x_train=np.array([])
   y_train=[]
   for folder in (["TestingSet", "TestingSet_secret", "TrainingSet"]):
+  #for folder in (["TrainingSet"]):
     for user in range(1,21):
       for session in range(1,6):
         for typ in (["fav", "same"]):
@@ -77,6 +79,7 @@ def data_load(path, frame_size=30):
             else:
               x_train  = np.concatenate((x_train,data), axis=0)
               y_train += [user-1]*data.shape[0]
+            print(folder, data.shape[0])
           except (FileNotFoundError, IndexError):
             continue
   print(x_train.shape)

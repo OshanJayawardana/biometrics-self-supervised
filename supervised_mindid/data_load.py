@@ -19,12 +19,12 @@ def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
     y = lfilter(b, a, data)
     return y
     
-def data_loader(path, num_class, num_sess=14, frame_size=128, fs = 128.0, lowcut =0.5, highcut = 4.0):
+def data_loader(path, num_class, sessions, frame_size=128, fs = 128.0, lowcut =0.5, highcut = 4.0):
     x_train = np.array([])
     y_train = []
     for subject in range(1, num_class+1):
       foldername = "S"+str(subject).rjust(3, '0')
-      for sess in range(1,num_sess+1):
+      for sess in sessions:
         sessname = "R"+str(sess).rjust(2, '0')
         filename = os.path.join(path, foldername, foldername+sessname+".edf")
         data = mne.io.read_raw_edf(filename, verbose=False)
@@ -46,6 +46,7 @@ def data_loader(path, num_class, num_sess=14, frame_size=128, fs = 128.0, lowcut
           x_train  = np.concatenate((x_train,data), axis=0)
           y_train += [subject-1]*data.shape[0]
     y_train = np.array(y_train)
+    print(x_train.shape)
     return x_train, y_train
 
 def norma(x_all):
