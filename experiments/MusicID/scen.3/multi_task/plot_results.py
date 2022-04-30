@@ -3,7 +3,7 @@ from pre_trainers import *
 import numpy as np
 import matplotlib.pyplot as plt
 
-scen = 1
+scen = 3
 
 fet_extrct = pre_trainer(scen=scen)
 
@@ -17,7 +17,7 @@ for el in variable:
   acc_temp=[]
   kappa_temp=[]
   for itr in range(10):
-    test_acc, kappa_score = trainer(el, fet_extrct, scen)
+    test_acc, kappa_score = trainer(el, fet_extrct, scen, fet=9)
     acc_temp.append(test_acc)
     kappa_temp.append(kappa_score)
   acc.append(acc_temp)

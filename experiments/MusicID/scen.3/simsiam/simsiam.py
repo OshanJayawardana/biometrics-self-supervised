@@ -21,8 +21,7 @@ def get_encoder(frame_size,ftr,mlp_s,origin):
     x = ReLU()(x)
     x = MaxPooling1D(pool_size=4, strides=4)(x)
     x = Dropout(rate=0.1)(x)
-    x = Flatten()(x)
-    #x = resnetblock_final(x, CR=32*con, KS=ks)
+    x = resnetblock_final(x, CR=32*con, KS=ks)
     
     outputs = proTian(x,mlp_s=mlp_s)
     

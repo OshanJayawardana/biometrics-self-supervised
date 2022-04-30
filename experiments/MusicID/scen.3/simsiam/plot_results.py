@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 scen = 3
 
-fet_extrct = pre_trainer(scen=scen)
+fet_extrct = pre_trainer(scen=scen, ft=6)
 
 variable_name="samples per user"
 model_name="musicid_scen"+str(scen)+"_simsiam"
@@ -17,7 +17,7 @@ for el in variable:
   acc_temp=[]
   kappa_temp=[]
   for itr in range(10):
-    test_acc, kappa_score = trainer(el, fet_extrct, scen)
+    test_acc, kappa_score = trainer(el, fet_extrct, scen, fet=9)
     acc_temp.append(test_acc)
     kappa_temp.append(kappa_score)
   acc.append(acc_temp)

@@ -12,7 +12,11 @@ from sklearn.metrics import roc_curve
 from backbones import *
 from data_loader import *
 
-def trainer(samples_per_user, fet_extrct, scen):
+def trainer(samples_per_user, fet_extrct, scen, fet):
+
+  for i in range(1,fet+1):
+    fet_extrct.layers[-i].trainable == False
+  
   frame_size   = 30
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
@@ -55,7 +59,7 @@ def trainer(samples_per_user, fet_extrct, scen):
   
   #fet_extrct=model.layers[len(transformations)]
 
-  fet_extrct.trainable=False
+  #fet_extrct.trainable=False
   inputs = Input(shape=(frame_size, x_train.shape[-1]))
   x = fet_extrct(inputs, training=False)
   x = Dense(256, activation='relu')(x)

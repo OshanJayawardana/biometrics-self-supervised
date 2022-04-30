@@ -15,7 +15,7 @@ from simsiam import *
 from backbones import *
 from data_loader import *
 
-def pre_trainer(scen):
+def pre_trainer(scen, ft):
   frame_size   = 30
   BATCH_SIZE = 40
   origin = False
@@ -104,6 +104,12 @@ def pre_trainer(scen):
       contrastive.encoder.input, contrastive.encoder.output
   )
   
+  backbone.summary()
+  
+  backbone = tf.keras.Model(backbone.input, backbone.layers[-ft].output)
+  
+  backbone.summary()
+  
   if scen==3:
     x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
   elif scen==1:
@@ -114,7 +120,7 @@ def pre_trainer(scen):
   X_embedded = TSNE(n_components=2).fit_transform(enc_results)
   fig4 = plt.figure(figsize=(18,12))
   plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.savefig('graphs/latentspace_scen_'+str(scen)+'.png')
+  plt.savefig('graphs/latentspace_scen_'+str(scen)+'_ft_'+str(ft)+'.png')
   plt.close(fig4)
   
   return backbone
