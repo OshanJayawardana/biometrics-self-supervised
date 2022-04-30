@@ -3,12 +3,12 @@ from pre_trainers import *
 import numpy as np
 import matplotlib.pyplot as plt
 
-scen = 1
+scen = 3
 
 fet_extrct = pre_trainer(scen=scen)
 
 variable_name="samples per user"
-model_name="musicid_scen"+str(scen)+"_multi task"
+model_name="musicid_scen"+str(scen)+"_simsiam"
 variable=[1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,24,28,32,36,40,45,50,55,60]
 #variable=[15,20]
 acc=[]

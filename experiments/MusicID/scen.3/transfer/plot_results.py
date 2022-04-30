@@ -1,6 +1,9 @@
 from trainers import *
+from pre_trainers import *
 import numpy as np
 import matplotlib.pyplot as plt
+
+fet_extrct = pre_trainer()
 
 variable_name="sampes per user"
 model_name="musicid_scen3_supervised"
@@ -11,7 +14,7 @@ for el in variable:
   acc_temp=[]
   kappa_temp=[]
   for itr in range(10):
-    test_acc, kappa_score = trainer(el)
+    test_acc, kappa_score = trainer(el, fet_extrct)
     acc_temp.append(test_acc)
     kappa_temp.append(kappa_score)
   acc.append(acc_temp)
