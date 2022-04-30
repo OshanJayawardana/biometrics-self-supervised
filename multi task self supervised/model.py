@@ -112,7 +112,7 @@ input_4 = Input(shape=(window_size,num_fet), name='input_4')
 input_5 = Input(shape=(window_size,num_fet), name='input_5')
 input_6 = Input(shape=(window_size,num_fet), name='input_6')
 input_7 = Input(shape=(window_size,num_fet), name='input_7')
-input_8 = Input(shape=(window_size,num_fet), name='input_8')
+#input_8 = Input(shape=(window_size,num_fet), name='input_8')
 
 trunk=trunk()
 

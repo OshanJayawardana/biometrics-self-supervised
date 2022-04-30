@@ -1,4 +1,6 @@
 from transformations import *
+import tensorflow as tf
+import numpy as np
 
 def flip_numpy(x):
   # x will be a numpy array with the contents of the input to the
@@ -52,4 +54,54 @@ def permutation_numpy(x):
 @tf.function(input_signature=[tf.TensorSpec(None, tf.float64)])
 def tf_permutation(input):
   y = tf.numpy_function(permutation_numpy, [input], tf.float64)
+  return y
+  
+def randsampling_numpy(x):
+  # x will be a numpy array with the contents of the input to the
+  # tf.function
+  return DA_RandSampling(x)
+@tf.function(input_signature=[tf.TensorSpec(None, tf.float64)])
+def tf_randsampling(input):
+  y = tf.numpy_function(randsampling_numpy, [input], tf.float64)
+  return y
+  
+def negation_numpy(x):
+  # x will be a numpy array with the contents of the input to the
+  # tf.function
+  return DA_Negation(x)
+@tf.function(input_signature=[tf.TensorSpec(None, tf.float64)])
+def tf_negation(input):
+  y = tf.numpy_function(negation_numpy, [input], tf.float64)
+  return y
+  
+def chf_numpy(x):
+  # x will be a numpy array with the contents of the input to the
+  # tf.function
+  return DA_ChannelShuffle(x)
+@tf.function(input_signature=[tf.TensorSpec(None, tf.float64)])
+def tf_chf(input):
+  y = tf.numpy_function(chf_numpy, [input], tf.float64)
+  return y
+  
+def drop_numpy(x):
+  # x will be a numpy array with the contents of the input to the
+  # tf.function
+  return DA_Drop(x)
+@tf.function(input_signature=[tf.TensorSpec(None, tf.float64)])
+def tf_drop(input):
+  y = tf.numpy_function(drop_numpy, [input], tf.float64)
+  return y
+  
+def random_numpy(x):
+  # x will be a numpy array with the contents of the input to the
+  # tf.function
+  #augs = [DA_Jitter, DA_Flip, DA_Scaling, DA_MagWarp, DA_Drop]
+  #indx = np.arange(len(augs))
+  #np.random.shuffle(indx)
+  #aug = augs[indx[0]]
+  x = DA_Scaling(x)
+  return x
+@tf.function(input_signature=[tf.TensorSpec(None, tf.float64)])
+def tf_random(input):
+  y = tf.numpy_function(random_numpy, [input], tf.float64)
   return y

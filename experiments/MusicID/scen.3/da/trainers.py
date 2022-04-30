@@ -11,9 +11,12 @@ from sklearn.metrics import roc_curve
 
 from backbones import *
 from data_loader import *
+from transformations_tf import *
 
 def trainer(samples_per_user):
   frame_size   = 30
+  BATCH_SIZE = 8
+  AUTO = tf.data.AUTOTUNE
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
   users_2 = list(range(9,21)) #Users for dataset 1
@@ -48,13 +51,25 @@ def trainer(samples_per_user):
   print(counts)
   
   SEED = 34
-  ssl_ds_one = tf.data.Dataset.from_tensor_slices(scaling(x_train))
+  ds_x = tf.data.Dataset.from_tensor_slices(x_train)
   #ssl_ds_one = tf.data.Dataset.from_tensor_slices(x_train)
-  ssl_ds_one = (
-      ssl_ds_one.shuffle(1024, seed=SEED)
+  ds_x = (
+      ds_x.shuffle(1024, seed=SEED)
+      .map(tf_scale, num_parallel_calls=AUTO)
       .batch(BATCH_SIZE)
       .prefetch(AUTO)
   )
+  
+  ds_y = tf.data.Dataset.from_tensor_slices(y_train)
+  ds_y = (
+      ds_y.shuffle(1024, seed=SEED)
+      .batch(BATCH_SIZE)
+      .prefetch(AUTO)
+  )
+  ssl_ds = tf.data.Dataset.zip((ds_x, ds_y))
+  
+  val_ds = tf.data.Dataset.from_tensor_slices((x_val, y_val))
+  val_ds = val_ds.batch(BATCH_SIZE).prefetch(AUTO)
   
   ks = 3
   con =3
@@ -73,11 +88,11 @@ def trainer(samples_per_user):
   #resnettssd.summary()
   
   callback = tf.keras.callbacks.EarlyStopping(monitor='val_accuracy', restore_best_weights=True, patience=5)
-  lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate = 0.001, decay_rate=0.95, decay_steps=1000000)# 0.0001, 0.9, 100000
+  lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate = 0.001, decay_rate=0.95, decay_steps=1000)# 0.0001, 0.9, 100000
   optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
   #optimizer = tf.keras.optimizers.Adam()
   resnettssd.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'] )
-  history = resnettssd.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=100, callbacks=callback, batch_size=8)
+  history = resnettssd.fit(ssl_ds, validation_data=val_ds, epochs=100, callbacks=callback, batch_size=BATCH_SIZE)
   
   results = resnettssd.evaluate(x_test,y_test)
   test_acc = results[1]
