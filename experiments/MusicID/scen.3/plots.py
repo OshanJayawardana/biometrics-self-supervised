@@ -147,14 +147,14 @@ plotter(paths, names, variable, variable_name, graph_name)
 paths = ["supervised/graph_data/musicid_scen3_supervised.npz",
           "da/graph_data/musicid_scen3_DA.npz",
           "transfer/graph_data/musicid_scen3_ft5_transfer.npz",
-          "multi_task/graph_data/musicid_scen3_multi task.npz",
+          "multi_task/graph_data/musicid_scen3_ft5_multi task.npz",
           "simsiam/graph_data/musicid_scen3_ft5_simsiam.npz"]
           
 names = ["supervised",
           "data augmentations",
           "transfer learning with fine tuning",
-          "multi task learning",
-          "simsiam"]
+          "multi task learning with fine tuning",
+          "simsiam with fine tuning"]
           
 variable = [1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,24,28,32,36,40,45,50,55,60]
 variable_name = "samples per user"

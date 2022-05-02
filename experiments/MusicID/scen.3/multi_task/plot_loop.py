@@ -13,5 +13,5 @@ from plot_results import *
 # 4 layer: ft=12 #5
 # all layer: ft=17 #0
 
-for layers in [0]:
+for layers in [1,2,3,4,5]:
   plotspu(layers)
