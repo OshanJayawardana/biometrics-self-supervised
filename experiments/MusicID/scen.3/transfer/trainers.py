@@ -12,7 +12,19 @@ from sklearn.metrics import roc_curve
 from backbones import *
 from data_loader import *
 
-def trainer(samples_per_user, resnettssd):
+def trainer(samples_per_user, fet_extrct, ft):
+  # single layer: ft=5
+  # 2 layer: ft=8
+  # 3 layer: ft=11
+  # 4 layer: ft=12
+  # all layer: ft=17
+  ft_dict = {0:17, 1:12, 2:11, 3:8, 4:5, 5:0}
+  ft = ft_dict[ft]
+  
+  #fet_extrct.trainable = False
+  for i in range(1,ft+1):
+    fet_extrct.layers[i].trainable = False
+  
   frame_size = 30
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
@@ -47,9 +59,9 @@ def trainer(samples_per_user, resnettssd):
   print(counts)
   
         
-  resnettssd.trainable = False
+  #resnettssd.trainable = False
   inputs = Input(shape=(frame_size, x_train.shape[-1]))
-  x = resnettssd(inputs, training=False)
+  x = fet_extrct(inputs, training=False)
   x = Dense(256, activation='relu')(x)
   x = Dense(64, activation='relu')(x)
   outputs = Dense(num_classes, activation='softmax')(x)
@@ -57,7 +69,7 @@ def trainer(samples_per_user, resnettssd):
   #resnettssd.summary()
   
   callback = tf.keras.callbacks.EarlyStopping(monitor='val_accuracy', restore_best_weights=True, patience=5)
-  lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate = 0.001, decay_rate=0.95, decay_steps=1000)# 0.0001, 0.9, 100000
+  lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate = 0.001/(ft+1), decay_rate=0.95, decay_steps=1000)# 0.0001, 0.9, 100000
   optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
   #optimizer = tf.keras.optimizers.Adam()
   resnettssd.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'] )
