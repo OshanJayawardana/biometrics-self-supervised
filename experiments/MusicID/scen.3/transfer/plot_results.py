@@ -23,7 +23,7 @@ def plotspu(ft):
   for el in variable:
     acc_temp=[]
     kappa_temp=[]
-    for itr in range(1):
+    for itr in range(10):
       test_acc, kappa_score = trainer(el, fet_extrct, ft=ft) #Edit this line for trainer parameters
       acc_temp.append(test_acc)
       kappa_temp.append(kappa_score)

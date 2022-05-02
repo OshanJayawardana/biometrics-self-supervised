@@ -117,13 +117,17 @@ def data_load(path, users, frame_size=30):
   return x_train, np.array(y_train), x_val, np.array(y_val), x_test, np.array(y_test), sessions
   
 def norma(x_train, x_val, x_test):
-  x_all = np.concatenate((x_train, x_val, x_test), axis=0)
-  x = np.reshape(x_all,(x_all.shape[0]*x_all.shape[1],x_all.shape[2]))
+  x = np.reshape(x_train,((x_train.shape[0]*(x_train.shape[1],(x_train.shape[2]))
   scaler = StandardScaler()
   x = scaler.fit_transform(x)
-  x_all = np.reshape(x,(x_all.shape[0],x_all.shape[1],x_all.shape[2]))
-  x=[]
-  x_train = x_all[:x_train.shape[0]]
-  x_val = x_all[x_train.shape[0]:x_train.shape[0]+x_val.shape[0]]
-  x_test = x_all[x_train.shape[0]+x_val.shape[0]:]
+  x_train = np.reshape(x,(x_train.shape[0],x_train.shape[1],x_train.shape[2]))
+  
+  x = np.reshape(x_val,((x_val.shape[0]*(x_val.shape[1],(x_val.shape[2]))
+  x = scaler.transform(x)
+  x_val = np.reshape(x,(x_val.shape[0],x_val.shape[1],x_val.shape[2]))
+  
+  x = np.reshape(x_test,((x_test.shape[0]*(x_testl.shape[1],(x_test.shape[2]))
+  x = scaler.transform(x)
+  x_test = np.reshape(x,(x_test.shape[0],x_test.shape[1],x_test.shape[2]))
+  
   return x_train, x_val, x_test
