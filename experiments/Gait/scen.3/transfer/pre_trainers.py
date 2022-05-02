@@ -13,23 +13,13 @@ from backbones import *
 from data_loader import *
 
 def pre_trainer():
-  frame_size   = 30
-  path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
+  frame_size   = 128
+  path = "/home/oshanjayawardanav100/biometrics-self-supervised/gait_dataset/idnet/"
   
-  users_2 = list(range(9,21)) #Users for dataset 2
-  users_1 = list(range(1,7)) #Users for dataset 1
-  folder_train = ["TrainingSet"]
-  folder_val = ["TestingSet"]
-  folder_test = ["TestingSet_secret"]
+  users_2 = list(range(19,51)) #Users for dataset 2
+  users_1 = list(range(1,17)) #Users for dataset 1
   
-  x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
-  print("training samples : ", x_train.shape[0])
-  
-  x_val, y_val, sessions_val = data_load_origin(path, users=users_1, folders=folder_val, frame_size=30)
-  print("validation samples : ", x_val.shape[0])
-  
-  x_test, y_test, sessions_test = data_load_origin(path, users=users_1, folders=folder_test, frame_size=30)
-  print("testing samples : ", x_test.shape[0])
+  x_train, y_train, x_val, y_val, x_test, y_test, sessions = data_loader_gait(path, classes=users_1, frame_size=frame_size)
   
   classes, counts  = np.unique(y_train, return_counts=True)
   num_classes = len(classes)
@@ -46,7 +36,7 @@ def pre_trainer():
   #print(counts)
   
   ks = 3
-  con =3
+  con =1
   inputs = Input(shape=(frame_size, x_train.shape[-1]))
   x = Conv1D(filters=16*con,kernel_size=ks,strides=1, padding='same')(inputs) 
   x = BatchNormalization()(x)
@@ -66,7 +56,7 @@ def pre_trainer():
   optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
   #optimizer = tf.keras.optimizers.Adam()
   resnettssd.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'] )
-  history = resnettssd.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=100, callbacks=callback, batch_size=8)
+  history = resnettssd.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=100, callbacks=callback, batch_size=32)
   
   results = resnettssd.evaluate(x_test,y_test)
   test_acc = results[1]

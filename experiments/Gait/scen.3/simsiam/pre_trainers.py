@@ -16,17 +16,16 @@ from backbones import *
 from data_loader import *
 
 def pre_trainer(scen, fet):
-  frame_size   = 30
   BATCH_SIZE = 40
   origin = False
   EPOCHS = 100
-  path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
+  frame_size   = 128
+  path = "/home/oshanjayawardanav100/biometrics-self-supervised/gait_dataset/idnet/"
   
-  users_2 = list(range(9,21)) #Users for dataset 2
-  users_1 = users = list(range(1,7)) #Users for dataset 1
-  folder_train = ["TrainingSet","TestingSet_secret", "TestingSet"]
+  users_2 = list(range(19,51)) #Users for dataset 2
+  users_1 = list(range(1,17)) #Users for dataset 1
   
-  x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
+  x_train, y_train, sessions = data_loader_gait_pre(path, classes=users_1, frame_size=frame_size)
   print("training samples : ", x_train.shape[0])
   num_sample=x_train.shape[0]
   
@@ -111,9 +110,9 @@ def pre_trainer(scen, fet):
   backbone.summary()
   
   if scen==3:
-    x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
+    x_train, y_train, sessions_train = data_loader_gait_pre(path, classes=users_2, frame_size=frame_size)
   elif scen==1:
-    x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
+    x_train, y_train, sessions_train = data_loader_gait_pre(path, classes=users_1, frame_size=frame_size)
     
   enc_results = backbone(x_train)
   enc_results = np.array(enc_results)

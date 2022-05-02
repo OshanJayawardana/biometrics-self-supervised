@@ -8,9 +8,9 @@ def plotspu(ft):
   fet_extrct = pre_trainer(scen=scen)
   
   if ft==0:
-    model_name="musicid_scen"+str(scen)+"_multi task"
+    model_name="gait_scen"+str(scen)+"_multi task"
   else:
-    model_name="musicid_scen"+str(scen)+'_ft'+str(ft)+"_multi task"
+    model_name="gait_scen"+str(scen)+'_ft'+str(ft)+"_multi task"
   
   variable_name="samples per user"
   variable=[1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,24,28,32,36,40,45,50,55,60]
