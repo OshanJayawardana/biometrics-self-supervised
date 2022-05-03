@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 import tensorflow_addons as tfa
 from tensorflow.keras import Input, Model
-from tensorflow.keras.layers import Dense, Flatten
+from tensorflow.keras.layers import Dense, Flatten, Conv1D, BatchNormalization, ReLU
 from tensorflow.keras import layers
 from sklearn.manifold import TSNE
 from sklearn.metrics import roc_curve
@@ -12,20 +12,8 @@ from sklearn.metrics import roc_curve
 from backbones import *
 from data_loader import *
 
-def trainer(samples_per_user, fet_extrct, ft):
-  # single layer: ft=5
-  # 2 layer: ft=8
-  # 3 layer: ft=11
-  # 4 layer: ft=12
-  # all layer: ft=17
-  ft_dict = {0:17, 1:12, 2:11, 3:8, 4:5, 5:0}
-  ft = ft_dict[ft]
-  
-  #fet_extrct.trainable = False
-  for i in range(1,ft+1):
-    fet_extrct.layers[i].trainable = False
-  
-  frame_size = 30
+def pre_trainer(samples_per_user):
+  frame_size   = 30
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
   users_2 = list(range(9,21)) #Users for dataset 2
@@ -33,15 +21,14 @@ def trainer(samples_per_user, fet_extrct, ft):
   folder_train = ["TrainingSet"]
   folder_val = ["TestingSet"]
   folder_test = ["TestingSet_secret"]
-  ######################################################Transfering##########################################################################################
   
-  x_train, y_train, sessions_train = data_load_origin(path, users=users_2+users_1, folders=folder_train, frame_size=30)
+  x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
   print("training samples : ", x_train.shape[0])
   
-  x_val, y_val, sessions_val = data_load_origin(path, users=users_2+users_1, folders=folder_val, frame_size=30)
+  x_val, y_val, sessions_val = data_load_origin(path, users=users_1, folders=folder_val, frame_size=30)
   print("validation samples : ", x_val.shape[0])
   
-  x_test, y_test, sessions_test = data_load_origin(path, users=users_2+users_1, folders=folder_test, frame_size=30)
+  x_test, y_test, sessions_test = data_load_origin(path, users=users_1, folders=folder_test, frame_size=30)
   print("testing samples : ", x_test.shape[0])
   
   classes, counts  = np.unique(y_train, return_counts=True)
@@ -58,16 +45,24 @@ def trainer(samples_per_user, fet_extrct, ft):
   classes, counts  = np.unique(y_train, return_counts=True)
   print(counts)
   
-        
-  #resnettssd.trainable = False
+  ks = 3
+  con =3
   inputs = Input(shape=(frame_size, x_train.shape[-1]))
-  x = fet_extrct(inputs, training=False)
+  x = Conv1D(filters=16*con,kernel_size=ks,strides=1, padding='same')(inputs) 
+  x = BatchNormalization()(x)
+  x = ReLU()(x)
+  x = MaxPooling1D(pool_size=4, strides=4)(x)
+  x = Dropout(rate=0.1)(x)
+  x = resnetblock_final(x, CR=32*con, KS=ks)
+  x = Flatten()(x)
+  x = Dense(256, activation='relu')(x)
+  x = Dense(64, activation='relu')(x)
   outputs = Dense(num_classes, activation='softmax')(x)
   resnettssd = Model(inputs, outputs)
   #resnettssd.summary()
   
   callback = tf.keras.callbacks.EarlyStopping(monitor='val_accuracy', restore_best_weights=True, patience=5)
-  lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate = 0.001/(ft+1), decay_rate=0.95, decay_steps=1000)# 0.0001, 0.9, 100000
+  lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate = 0.001, decay_rate=0.95, decay_steps=1000)# 0.0001, 0.9, 100000
   optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
   #optimizer = tf.keras.optimizers.Adam()
   resnettssd.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'] )
@@ -84,4 +79,9 @@ def trainer(samples_per_user, fet_extrct, ft):
   kappa_score = result.numpy()
   print('kappa score: ',result.numpy())
   
-  return test_acc, kappa_score
+  resnettssd = tf.keras.Model(
+            resnettssd.input, resnettssd.layers[-2].output
+        )
+  #resnettssd.summary()
+  
+  return test_acc, kappa_score, resnettssd

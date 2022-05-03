@@ -1,9 +1,10 @@
 from trainers import *
+from pre_trainers import *
 import numpy as np
 import matplotlib.pyplot as plt
 
 variable_name="sampes per user"
-model_name="musicid_scen1_supervised"
+model_name="musicid_scen2_transfer"
 variable=[1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,24,28,32,36,40,45,50,55,60]
 acc=[]
 kappa=[]
@@ -11,7 +12,20 @@ for el in variable:
   acc_temp=[]
   kappa_temp=[]
   for itr in range(10):
-    test_acc, kappa_score = trainer(el)
+    test_acc, kappa_score, fet_extrct = pre_trainer(el)
+    acc_temp.append(test_acc)
+    kappa_temp.append(kappa_score)
+  if np.mean(np.array(acc_temp))>=0.95:
+    el95 = el
+    break
+
+acc=[]
+kappa=[]
+for el in variable:
+  acc_temp=[]
+  kappa_temp=[]
+  for itr in range(10):
+    test_acc, kappa_score, fet_extrct = trainer(samples_per_user, fet_extrct, ft=5)
     acc_temp.append(test_acc)
     kappa_temp.append(kappa_score)
   acc.append(acc_temp)
@@ -44,3 +58,5 @@ plt.legend()
 plt.show()
 plt.savefig('graphs/acc.jpg')
 plt.close()
+
+print("samples per user at 95% accuracy: ", el95)
