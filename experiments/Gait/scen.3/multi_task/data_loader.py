@@ -178,7 +178,7 @@ def data_loader_gait(path, classes, frame_size=128):
     x_test=np.array([])
     y_test=[]
     sessions=[]
-    for user_id in range(classes):
+    for user_id, user in enumerate(classes):
         sess_count=0
         for session_id in range(1,2):
             try:
@@ -227,16 +227,18 @@ def data_loader_gait(path, classes, frame_size=128):
         sessions.append(sess_count)
     indx = np.arange(len(y_train))
     y_train = np.array(y_train)
+    y_val = np.array(y_val)
+    y_test = np.array(y_test)
     np.random.shuffle(indx)
     x_train = x_train[indx]
     y_train = y_train[indx]
     return x_train, y_train, x_val, y_val, x_test, y_test, sessions
-
+    
 def data_loader_gait_pre(path, classes, frame_size=128):
     x_train=np.array([])
     y_train=[]
     sessions=[]
-    for user_id in range(classes):
+    for user_id, user in enumerate(classes):
         sess_count=0
         for session_id in range(1,2):
             try:

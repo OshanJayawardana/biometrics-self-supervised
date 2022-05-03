@@ -108,7 +108,7 @@ def DA_ChannelShuffle(X, sigma=0):
     np.random.shuffle(indx)
     return X[:,indx]
     
-def DA_Drop(X, W=7, sigma=0):
+def DA_Drop(X, W=7, sigma=10):
     W=sigma
     indx=np.arange(X.shape[0]-W)
     np.random.shuffle(indx)

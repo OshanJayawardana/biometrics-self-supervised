@@ -73,8 +73,7 @@ def pre_trainer():
             resnettssd.input, resnettssd.layers[-5].output
         )
   resnettssd.summary()
-  folder_train = ["TrainingSet", "TestingSet", "TestingSet_secret"]
-  x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
+  x_train, y_train, sessions_train = data_loader_gait_pre(path, classes=users_1, frame_size=128)
   enc_results = resnettssd(x_train)
   enc_results = np.array(enc_results)
   X_embedded = TSNE(n_components=2).fit_transform(enc_results)
@@ -83,8 +82,7 @@ def pre_trainer():
   plt.savefig('graphs/latentspace_scen_1.png')
   plt.close(fig4)
   
-  folder_train = ["TrainingSet", "TestingSet", "TestingSet_secret"]
-  x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
+  x_train, y_train, sessions_train = data_loader_gait_pre(path, classes=users_2, frame_size=128)
   enc_results = resnettssd(x_train)
   enc_results = np.array(enc_results)
   X_embedded = TSNE(n_components=2).fit_transform(enc_results)

@@ -85,6 +85,7 @@ def pre_trainer():
   resnettssd.summary()
   folder_train = ["TrainingSet", "TestingSet", "TestingSet_secret"]
   x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
+  x_train = norma_pre(x_train)
   enc_results = resnettssd(x_train)
   enc_results = np.array(enc_results)
   X_embedded = TSNE(n_components=2).fit_transform(enc_results)
@@ -95,6 +96,7 @@ def pre_trainer():
   
   folder_train = ["TrainingSet", "TestingSet", "TestingSet_secret"]
   x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
+  x_train = norma_pre(x_train)
   enc_results = resnettssd(x_train)
   enc_results = np.array(enc_results)
   X_embedded = TSNE(n_components=2).fit_transform(enc_results)

@@ -35,13 +35,17 @@ def data_load_origin(path, users, folders, frame_size=30):
   #print(x_train.shape)
   return x_train, np.array(y_train), sessions
   
-def norma_origin(x_all):
-  x = np.reshape(x_all,(x_all.shape[0]*x_all.shape[1],x_all.shape[2]))
-  scaler = StandardScaler()
-  x = scaler.fit_transform(x)
-  x_all = np.reshape(x,(x_all.shape[0],x_all.shape[1],x_all.shape[2]))
-  x=[]
-  return x_all
+def norma_origin(x_all, scaler=None):
+  if scaler==None:
+    x = np.reshape(x_all,(x_all.shape[0]*x_all.shape[1],x_all.shape[2]))
+    scaler = StandardScaler()
+    x = scaler.fit_transform(x)
+    x_all = np.reshape(x,(x_all.shape[0],x_all.shape[1],x_all.shape[2]))
+  else:
+    x = np.reshape(x_all,(x_all.shape[0]*x_all.shape[1],x_all.shape[2]))
+    x = scaler.transform(x)
+    x_all = np.reshape(x,(x_all.shape[0],x_all.shape[1],x_all.shape[2]))
+  return x_all, scaler
   
 def user_data_split(x,y, samples_per_user):
   users, counts  = np.unique(y, return_counts=True)
@@ -140,18 +144,24 @@ def data_loader_gait(path, classes, frame_size=128):
     x_test=np.array([])
     y_test=[]
     sessions=[]
-    for user_id in range(classes):
+    samples=[]
+    for user_id, user in enumerate(classes):
         sess_count=0
+        temp_samples=0
         for session_id in range(1,2):
             try:
-                foldername = "u"+str(user_id).rjust(3, '0')+"_w"+str(session_id).rjust(3, '0')
+                foldername = "u"+str(user).rjust(3, '0')+"_w"+str(session_id).rjust(3, '0')
                 filename_acc = os.path.join(path,foldername,foldername+"_accelerometer.log")
                 data_acc = pd.read_csv(filename_acc, header=0, sep="\t")
                 acc_x, acc_y, acc_z = np.array(data_acc.accelerometer_x_data), np.array(data_acc.accelerometer_y_data), np.array(data_acc.accelerometer_z_data)
                 data = [acc_x, acc_y, acc_z, np.sqrt(acc_x*acc_x + acc_y*acc_y + acc_z*acc_z)]
-                min_ln = min([data[i].shape[0] for i in range(4)])
-                data = [data[i][:min_ln] for i in range(4)]
+                min_ln = min([data[i].shape[0] for i in range(len(data))])
+                data = [data[i][:min_ln] for i in range(len(data))]
                 data = np.array(data).T
+                
+                #filename = "u"+str(user).rjust(3, '0')+"_w"+str(session_id).rjust(3, '0')+"_data_user_coord.csv"
+                #data = pd.read_csv(os.path.join(path,filename))
+                #data = np.array(data)
 
                 data_train = data[:int(data.shape[0]*0.7)]
                 data_val = data[int(data.shape[0]*0.7):int(data.shape[0]*0.85)]
@@ -169,20 +179,61 @@ def data_loader_gait(path, classes, frame_size=128):
 
                 if x_train.shape[0]==0:
                     x_train  = data_train
-                    y_train += [user_id-1]*data_train.shape[0]
+                    y_train += [user_id]*data_train.shape[0]
                     x_val  = data_val
-                    y_val += [user_id-1]*data_val.shape[0]
+                    y_val += [user_id]*data_val.shape[0]
                     x_test  = data_test
-                    y_test += [user_id-1]*data_test.shape[0]
+                    y_test += [user_id]*data_test.shape[0]
                 else:
                     x_train  = np.concatenate((x_train,data_train), axis=0)
-                    y_train += [user_id-1]*data_train.shape[0]
+                    y_train += [user_id]*data_train.shape[0]
 
                     x_val = np.concatenate((x_val,data_val), axis=0)
-                    y_val += [user_id-1]*data_val.shape[0]
+                    y_val += [user_id]*data_val.shape[0]
 
                     x_test = np.concatenate((x_test,data_test), axis=0)
-                    y_test += [user_id-1]*data_test.shape[0]
+                    y_test += [user_id]*data_test.shape[0]
+                sess_count+=1
+                temp_samples=data_train.shape[0]
+            except FileNotFoundError:
+                continue
+        samples.append(temp_samples)
+        sessions.append(sess_count)
+        
+    print(samples)
+    indx = np.arange(len(y_train))
+    y_train = np.array(y_train)
+    y_val = np.array(y_val)
+    y_test = np.array(y_test)
+    np.random.shuffle(indx)
+    x_train = x_train[indx]
+    y_train = y_train[indx]
+    return x_train, y_train, x_val, y_val, x_test, y_test, sessions
+
+def data_loader_gait_pre(path, classes, frame_size=128):
+    x_train=np.array([])
+    y_train=[]
+    sessions=[]
+    for user_id, user in enumerate(classes):
+        sess_count=0
+        for session_id in range(1,2):
+            try:
+                foldername = "u"+str(user_id).rjust(3, '0')+"_w"+str(session_id).rjust(3, '0')
+                filename_acc = os.path.join(path,foldername,foldername+"_accelerometer.log")
+                data_acc = pd.read_csv(filename_acc, header=0, sep="\t")
+                acc_x, acc_y, acc_z = np.array(data_acc.accelerometer_x_data), np.array(data_acc.accelerometer_y_data), np.array(data_acc.accelerometer_z_data)
+                data = [acc_x, acc_y, acc_z, np.sqrt(acc_x*acc_x + acc_y*acc_y + acc_z*acc_z)]
+                min_ln = min([data[i].shape[0] for i in range(4)])
+                data = [data[i][:min_ln] for i in range(4)]
+                data = np.array(data).T
+                data=np.lib.stride_tricks.sliding_window_view(data, (frame_size,data.shape[1]))[::frame_size//2, :]
+                data=data.reshape(data.shape[0],data.shape[2],data.shape[3])
+                if x_train.shape[0]==0:
+                    x_train  = data
+                    y_train += [user_id-1]*data.shape[0]
+                else:
+                    x_train  = np.concatenate((x_train,data), axis=0)
+                    y_train += [user_id-1]*data.shape[0]
                 sess_count+=1
             except FileNotFoundError:
                 continue
@@ -192,4 +243,4 @@ def data_loader_gait(path, classes, frame_size=128):
     np.random.shuffle(indx)
     x_train = x_train[indx]
     y_train = y_train[indx]
-    return x_train, y_train, x_val, y_val, x_test, y_test, sessions
+    return x_train, y_train, sessions

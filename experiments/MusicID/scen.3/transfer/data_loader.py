@@ -131,3 +131,11 @@ def norma(x_train, x_val, x_test):
   x_test = np.reshape(x,(x_test.shape[0],x_test.shape[1],x_test.shape[2]))
   
   return x_train, x_val, x_test
+  
+def norma_pre(x_all):
+  x = np.reshape(x_all,(x_all.shape[0]*x_all.shape[1],x_all.shape[2]))
+  scaler = StandardScaler()
+  x = scaler.fit_transform(x)
+  x_all = np.reshape(x,(x_all.shape[0],x_all.shape[1],x_all.shape[2]))
+  x=[]
+  return x_all

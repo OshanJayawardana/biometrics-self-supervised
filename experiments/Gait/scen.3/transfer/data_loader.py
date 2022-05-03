@@ -140,7 +140,7 @@ def data_loader_gait(path, classes, frame_size=128):
     x_test=np.array([])
     y_test=[]
     sessions=[]
-    for user_id in range(classes):
+    for user_id, user in enumerate(classes):
         sess_count=0
         for session_id in range(1,2):
             try:
@@ -189,7 +189,44 @@ def data_loader_gait(path, classes, frame_size=128):
         sessions.append(sess_count)
     indx = np.arange(len(y_train))
     y_train = np.array(y_train)
+    y_val = np.array(y_val)
+    y_test = np.array(y_test)
     np.random.shuffle(indx)
     x_train = x_train[indx]
     y_train = y_train[indx]
     return x_train, y_train, x_val, y_val, x_test, y_test, sessions
+    
+def data_loader_gait_pre(path, classes, frame_size=128):
+    x_train=np.array([])
+    y_train=[]
+    sessions=[]
+    for user_id, user in enumerate(classes):
+        sess_count=0
+        for session_id in range(1,2):
+            try:
+                foldername = "u"+str(user_id).rjust(3, '0')+"_w"+str(session_id).rjust(3, '0')
+                filename_acc = os.path.join(path,foldername,foldername+"_accelerometer.log")
+                data_acc = pd.read_csv(filename_acc, header=0, sep="\t")
+                acc_x, acc_y, acc_z = np.array(data_acc.accelerometer_x_data), np.array(data_acc.accelerometer_y_data), np.array(data_acc.accelerometer_z_data)
+                data = [acc_x, acc_y, acc_z, np.sqrt(acc_x*acc_x + acc_y*acc_y + acc_z*acc_z)]
+                min_ln = min([data[i].shape[0] for i in range(4)])
+                data = [data[i][:min_ln] for i in range(4)]
+                data = np.array(data).T
+                data=np.lib.stride_tricks.sliding_window_view(data, (frame_size,data.shape[1]))[::frame_size//2, :]
+                data=data.reshape(data.shape[0],data.shape[2],data.shape[3])
+                if x_train.shape[0]==0:
+                    x_train  = data
+                    y_train += [user_id-1]*data.shape[0]
+                else:
+                    x_train  = np.concatenate((x_train,data), axis=0)
+                    y_train += [user_id-1]*data.shape[0]
+                sess_count+=1
+            except FileNotFoundError:
+                continue
+        sessions.append(sess_count)
+    indx = np.arange(len(y_train))
+    y_train = np.array(y_train)
+    np.random.shuffle(indx)
+    x_train = x_train[indx]
+    y_train = y_train[indx]
+    return x_train, y_train, sessions

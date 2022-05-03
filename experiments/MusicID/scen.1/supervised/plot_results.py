@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 variable_name="sampes per user"
-model_name="musicid_scen3_supervised"
+model_name="musicid_scen1_supervised"
 variable=[1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,24,28,32,36,40,45,50,55,60]
 acc=[]
 kappa=[]

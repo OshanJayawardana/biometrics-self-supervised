@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 import tensorflow_addons as tfa
 from tensorflow.keras import Input, Model
-from tensorflow.keras.layers import Dense, Flatten
+from tensorflow.keras.layers import Dense, Flatten, Conv1D, BatchNormalization, ReLU
 from tensorflow.keras import layers
 from sklearn.manifold import TSNE
 from sklearn.metrics import roc_curve
@@ -16,19 +16,19 @@ def trainer(samples_per_user):
   frame_size   = 30
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
-  users_2 = list(range(9,21)) #Users for dataset 1
-  users_1 = users = list(range(1,7)) #Users for dataset 2
+  users_2 = list(range(9,21)) #Users for dataset 2
+  users_1 = list(range(1,7)) #Users for dataset 1
   folder_train = ["TrainingSet"]
   folder_val = ["TestingSet"]
   folder_test = ["TestingSet_secret"]
   
-  x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
+  x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
   print("training samples : ", x_train.shape[0])
   
-  x_val, y_val, sessions_val = data_load_origin(path, users=users_1, folders=folder_val, frame_size=30)
+  x_val, y_val, sessions_val = data_load_origin(path, users=users_2, folders=folder_val, frame_size=30)
   print("validation samples : ", x_val.shape[0])
   
-  x_test, y_test, sessions_test = data_load_origin(path, users=users_1, folders=folder_test, frame_size=30)
+  x_test, y_test, sessions_test = data_load_origin(path, users=users_2, folders=folder_test, frame_size=30)
   print("testing samples : ", x_test.shape[0])
   
   classes, counts  = np.unique(y_train, return_counts=True)
@@ -39,8 +39,6 @@ def trainer(samples_per_user):
   print("x_train", x_train.shape)
   print("x_val", x_val.shape)
   print("x_test", x_test.shape)
-  x_all_tsne = np.concatenate((x_train, x_val, x_test), axis=0)
-  y_all_tsne = np.concatenate((y_train, y_val, y_test), axis=0)
   
   x_train, y_train = user_data_split(x_train ,y_train , samples_per_user=samples_per_user)
   print("limited training samples : ", x_train.shape[0])

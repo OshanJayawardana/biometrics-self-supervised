@@ -110,17 +110,26 @@ def pre_trainer(scen, fet):
   
   backbone.summary()
   
-  if scen==3:
-    x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
-  elif scen==1:
-    x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
+  x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
     
+  x_train = norma_pre(x_train)
   enc_results = backbone(x_train)
   enc_results = np.array(enc_results)
   X_embedded = TSNE(n_components=2).fit_transform(enc_results)
   fig4 = plt.figure(figsize=(18,12))
   plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.savefig('graphs/latentspace_scen_'+str(scen)+'_fet_'+str(fet)+'.png')
+  plt.savefig('graphs/latentspace_scen_1.png')
+  plt.close(fig4)
+  
+  
+  x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
+  x_train = norma_pre(x_train)
+  enc_results = backbone(x_train)
+  enc_results = np.array(enc_results)
+  X_embedded = TSNE(n_components=2).fit_transform(enc_results)
+  fig4 = plt.figure(figsize=(18,12))
+  plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
+  plt.savefig('graphs/latentspace_scen_3.png')
   plt.close(fig4)
   
   return backbone

@@ -7,6 +7,7 @@ from tensorflow.keras import Input, Model
 from tensorflow.keras.layers import Dense, Flatten
 from tensorflow.keras import layers
 from sklearn.manifold import TSNE
+from sklearn.preprocessing import StandardScaler
 
 from backbones import *
 from data_loader import *
@@ -14,17 +15,25 @@ from data_loader import *
 def trainer(samples_per_user):
   frame_size   = 128
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/gait_dataset/idnet/"
+  #path = "/home/oshanjayawardanav100/biometrics-self-supervised/gait_dataset/IDNet's dataset/user_coordinates/"
   
   users_2 = list(range(19,51)) #Users for dataset 2
   users_1 = list(range(1,17)) #Users for dataset 1
   
-  x_train, y_train, x_val, y_val, x_test, y_test, sessions = data_loader_gait(path, classes=users_2, frame_size=frame_size)
+  x_train, y_train, x_val, y_val, x_test, y_test, sessions = data_loader_gait(path, classes=users_2+users_1, frame_size=frame_size)
+  #x_sample, y_sample,sessions_sample = data_loader_gait_pre(path, classes=[17,18], frame_size=128)
+  #_, scaler = norma_origin(x_sample)
   
   classes, counts  = np.unique(y_train, return_counts=True)
+  print(classes)
   num_classes = len(classes)
+  print("num_classes ",num_classes)
   print("minimum samples per user : ", min(counts)) #60
   
   x_train, x_val, x_test = norma(x_train, x_val, x_test)
+  #x_train, _ = norma_origin(x_train, scaler)
+  #x_val, _ = norma_origin(x_val, scaler)
+  #x_test, _ = norma_origin(x_test, scaler)
   print("x_train", x_train.shape)
   print("x_val", x_val.shape)
   print("x_test", x_test.shape)

@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def plotspu(ft):
-  scen = 3
+  scen = 1
   fet_extrct = pre_trainer(scen=scen)
   
   if ft==0:
