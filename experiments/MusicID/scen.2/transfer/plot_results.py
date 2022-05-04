@@ -6,27 +6,27 @@ import matplotlib.pyplot as plt
 variable_name="sampes per user"
 model_name="musicid_scen2_transfer"
 variable=[1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,24,28,32,36,40,45,50,55,60]
+
 acc=[]
 kappa=[]
+el95 = 0
 for el in variable:
-  acc_temp=[]
-  kappa_temp=[]
-  for itr in range(1):
-    test_acc, kappa_score, fet_extrct = pre_trainer(el)
-    acc_temp.append(test_acc)
-    kappa_temp.append(kappa_score)
-  if np.mean(np.array(acc_temp))>=0.95:
-    el95 = el
+  for itr in range(10):
+    test_acc, kappa_score, model = pre_trainer(el)
+    if test_acc>=0.95:
+      el95 = el
+      break
+  if el95!=0:
     break
 
-fet_extrct.summary()
+model.summary()
 acc=[]
 kappa=[]
 for el in variable:
   acc_temp=[]
   kappa_temp=[]
   for itr in range(10):
-    test_acc, kappa_score = trainer(samples_per_user=el, fet_extrct=fet_extrct, ft=5)
+    test_acc, kappa_score = trainer(samples_per_user=el, fet_extrct=model, ft=5)
     acc_temp.append(test_acc)
     kappa_temp.append(kappa_score)
   acc.append(acc_temp)
