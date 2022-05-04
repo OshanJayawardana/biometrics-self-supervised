@@ -2,11 +2,12 @@ from trainers import *
 from pre_trainers import *
 import numpy as np
 import matplotlib.pyplot as plt
+from os.path import exists
 
 variable_name="sampes per user"
 model_name="musicid_scen2_transfer"
 variable=[1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,24,28,32,36,40,45,50,55,60]
-
+#variable=[1]
 acc=[]
 kappa=[]
 el95 = 0
@@ -18,6 +19,8 @@ for el in variable:
       break
   if el95!=0:
     break
+else:
+  el95 = el
 
 model.summary()
 acc=[]
@@ -61,3 +64,9 @@ plt.savefig('graphs/acc.jpg')
 plt.close()
 
 print("samples per user at 95% accuracy: ", el95)
+if not exists("samples_per_user_pretraining.txt"):
+  f = open("samples_per_user_pretraining.txt", "x")
+
+f = open("samples_per_user_pretraining.txt", "w")
+f.write(str(el95))
+f.close()
