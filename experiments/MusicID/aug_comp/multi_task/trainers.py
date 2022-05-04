@@ -1,18 +1,14 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
 import tensorflow as tf
 import tensorflow_addons as tfa
 from tensorflow.keras import Input, Model
-from tensorflow.keras.layers import Dense, Flatten
-from tensorflow.keras import layers
-from sklearn.manifold import TSNE
-from sklearn.metrics import roc_curve
+from tensorflow.keras.layers import Dense
 
 from backbones import *
 from data_loader import *
 
 def trainer(samples_per_user, fet_extrct, ft):
+  
   ft_dict = {0:17, 1:12, 2:11, 3:8, 4:5, 5:0}
   ft = ft_dict[ft]
   
@@ -20,14 +16,26 @@ def trainer(samples_per_user, fet_extrct, ft):
   for i in range(1,ft+1):
     fet_extrct.layers[i].trainable = False
   
-  frame_size   = 128
-  path = "/home/oshanjayawardanav100/biometrics-self-supervised/gait_dataset/idnet/"
+  frame_size   = 30
+  path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
-  users_2 = list(range(19,51)) #Users for dataset 2
-  users_1 = list(range(1,17)) #Users for dataset 1
-  users_2 = users_2+users_1
+  users_2 = list(range(7,21)) #Users for dataset 1
+  users_1 = list(range(1,7)) #Users for dataset 2
   
-  x_train, y_train, x_val, y_val, x_test, y_test, sessions = data_loader_gait(path, classes=users_2, frame_size=frame_size)
+  ######################################################Transfering##########################################################################################
+  
+  folder_train = ["TrainingSet"]
+  folder_val = ["TestingSet"]
+  folder_test = ["TestingSet_secret"]
+  
+  x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
+  print("training samples : ", x_train.shape[0])
+  
+  x_val, y_val, sessions_val = data_load_origin(path, users=users_2, folders=folder_val, frame_size=30)
+  print("validation samples : ", x_val.shape[0])
+  
+  x_test, y_test, sessions_test = data_load_origin(path, users=users_2, folders=folder_test, frame_size=30)
+  print("testing samples : ", x_test.shape[0])
   
   classes, counts  = np.unique(y_train, return_counts=True)
   num_classes = len(classes)
@@ -43,8 +51,9 @@ def trainer(samples_per_user, fet_extrct, ft):
   classes, counts  = np.unique(y_train, return_counts=True)
   print(counts)
   
-        
-  #resnettssd.trainable = False
+  #fet_extrct=model.layers[len(transformations)]
+
+  #fet_extrct.trainable=False
   inputs = Input(shape=(frame_size, x_train.shape[-1]))
   x = fet_extrct(inputs, training=False)
   x = Dense(256, activation='relu')(x)
