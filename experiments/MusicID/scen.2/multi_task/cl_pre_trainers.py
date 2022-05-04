@@ -12,7 +12,7 @@ from sklearn.metrics import roc_curve
 from backbones import *
 from data_loader import *
 
-def pre_trainer(samples_per_user):
+def cl_pre_trainer(samples_per_user, fet_extrct):
   frame_size   = 30
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
@@ -48,13 +48,7 @@ def pre_trainer(samples_per_user):
   ks = 3
   con =3
   inputs = Input(shape=(frame_size, x_train.shape[-1]))
-  x = Conv1D(filters=16*con,kernel_size=ks,strides=1, padding='same')(inputs) 
-  x = BatchNormalization()(x)
-  x = ReLU()(x)
-  x = MaxPooling1D(pool_size=4, strides=4)(x)
-  x = Dropout(rate=0.1)(x)
-  x = resnetblock_final(x, CR=32*con, KS=ks)
-  x = Flatten()(x)
+  x = fet_extrct(inputs, training=False)
   x = Dense(256, activation='relu')(x)
   x = Dense(64, activation='relu')(x)
   outputs = Dense(num_classes, activation='softmax')(x)
@@ -62,7 +56,7 @@ def pre_trainer(samples_per_user):
   #resnettssd.summary()
   
   callback = tf.keras.callbacks.EarlyStopping(monitor='val_accuracy', restore_best_weights=True, patience=5)
-  lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate = 0.001, decay_rate=0.95, decay_steps=1000)# 0.0001, 0.9, 100000
+  lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate = 0.001/20, decay_rate=0.95, decay_steps=1000)# 0.0001, 0.9, 100000
   optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
   #optimizer = tf.keras.optimizers.Adam()
   resnettssd.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'] )
@@ -79,9 +73,8 @@ def pre_trainer(samples_per_user):
   kappa_score = result.numpy()
   print('kappa score: ',result.numpy())
   
-  resnettssd = tf.keras.Model(
-            resnettssd.input, resnettssd.layers[-5].output
-        )
+  resnettssd = resnettssd.layers[1]
+  
   #resnettssd.summary()
   
   return test_acc, kappa_score, resnettssd

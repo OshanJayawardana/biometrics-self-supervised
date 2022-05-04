@@ -28,7 +28,7 @@ def trainer(samples_per_user, fet_extrct, ft):
   frame_size = 30
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
-  users_2 = list(range(9,21)) #Users for dataset 2
+  users_2 = list(range(7,21)) #Users for dataset 2
   users_1 = list(range(1,7)) #Users for dataset 1
   folder_train = ["TrainingSet"]
   folder_val = ["TestingSet"]

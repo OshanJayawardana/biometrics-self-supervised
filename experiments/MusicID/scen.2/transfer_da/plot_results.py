@@ -2,30 +2,34 @@ from trainers import *
 from pre_trainers import *
 import numpy as np
 import matplotlib.pyplot as plt
-
-fet_extrct = pre_trainer()
-
-ft = 0
-# single layer: ft=5
-# 2 layer: ft=8
-# 3 layer: ft=11
-# 4 layer: ft=12
-# all layer: ft=17
-
-if ft==0:
-  model_name="musicid_scen3_transfer"
-else:
-  model_name='musicid_scen3'+'_ft'+str(ft)+'_transfer'
+from os.path import exists
 
 variable_name="sampes per user"
+model_name="musicid_scen2_transfer_da"
 variable=[1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,24,28,32,36,40,45,50,55,60]
+#variable=[1]
+acc=[]
+kappa=[]
+el95 = 0
+for el in variable:
+  for itr in range(10):
+    test_acc, kappa_score, model = pre_trainer(el)
+    if test_acc>=0.95:
+      el95 = el
+      break
+  if el95!=0:
+    break
+else:
+  el95 = el
+
+model.summary()
 acc=[]
 kappa=[]
 for el in variable:
   acc_temp=[]
   kappa_temp=[]
   for itr in range(10):
-    test_acc, kappa_score = trainer(el, fet_extrct, ft=ft) #Edit this line for trainer parameters
+    test_acc, kappa_score = trainer(samples_per_user=el, fet_extrct=model, ft=5)
     acc_temp.append(test_acc)
     kappa_temp.append(kappa_score)
   acc.append(acc_temp)
@@ -45,10 +49,7 @@ plt.xlabel(variable_name)
 plt.ylabel("kappa score")
 plt.legend()
 plt.show()
-if ft==0:
-  plt.savefig('graphs/kappa.jpg')
-else:
-  plt.savefig('graphs/kappa'+'_ft'+str(ft)+'.jpg')
+plt.savefig('graphs/kappa.jpg')
 plt.close()
 
 acc_max = np.max(acc, axis=1)
@@ -59,8 +60,13 @@ plt.xlabel(variable_name)
 plt.ylabel("test acuracy")
 plt.legend()
 plt.show()
-if ft==0:
-  plt.savefig('graphs/acc.jpg')
-else:
-  plt.savefig('graphs/acc'+'_ft'+str(ft)+'.jpg')
+plt.savefig('graphs/acc.jpg')
 plt.close()
+
+print("samples per user at 95% accuracy: ", el95)
+if not exists("samples_per_user_pretraining.txt"):
+  f = open("samples_per_user_pretraining.txt", "x")
+
+f = open("samples_per_user_pretraining.txt", "w")
+f.write(str(el95))
+f.close()
