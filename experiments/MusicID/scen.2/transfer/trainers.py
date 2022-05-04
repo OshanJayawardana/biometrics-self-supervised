@@ -62,6 +62,8 @@ def trainer(samples_per_user, fet_extrct, ft):
   #resnettssd.trainable = False
   inputs = Input(shape=(frame_size, x_train.shape[-1]))
   x = fet_extrct(inputs, training=False)
+  x = Dense(256, activation='relu')(x)
+  x = Dense(64, activation='relu')(x)
   outputs = Dense(num_classes, activation='softmax')(x)
   resnettssd = Model(inputs, outputs)
   #resnettssd.summary()

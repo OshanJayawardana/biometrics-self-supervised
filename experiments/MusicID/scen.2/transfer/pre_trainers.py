@@ -80,7 +80,7 @@ def pre_trainer(samples_per_user):
   print('kappa score: ',result.numpy())
   
   resnettssd = tf.keras.Model(
-            resnettssd.input, resnettssd.layers[-2].output
+            resnettssd.input, resnettssd.layers[-5].output
         )
   #resnettssd.summary()
   
