@@ -11,7 +11,7 @@ kappa=[]
 for el in variable:
   acc_temp=[]
   kappa_temp=[]
-  for itr in range(10):
+  for itr in range(1):
     test_acc, kappa_score, fet_extrct = pre_trainer(el)
     acc_temp.append(test_acc)
     kappa_temp.append(kappa_score)
@@ -19,13 +19,14 @@ for el in variable:
     el95 = el
     break
 
+fet_extrct.summary()
 acc=[]
 kappa=[]
 for el in variable:
   acc_temp=[]
   kappa_temp=[]
   for itr in range(10):
-    test_acc, kappa_score, fet_extrct = trainer(samples_per_user, fet_extrct, ft=5)
+    test_acc, kappa_score = trainer(samples_per_user=el, fet_extrct=fet_extrct, ft=5)
     acc_temp.append(test_acc)
     kappa_temp.append(kappa_score)
   acc.append(acc_temp)

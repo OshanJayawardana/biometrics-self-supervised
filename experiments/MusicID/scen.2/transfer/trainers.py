@@ -35,13 +35,13 @@ def trainer(samples_per_user, fet_extrct, ft):
   folder_test = ["TestingSet_secret"]
   ######################################################Transfering##########################################################################################
   
-  x_train, y_train, sessions_train = data_load_origin(path, users=users_2+users_1, folders=folder_train, frame_size=30)
+  x_train, y_train, sessions_train = data_load_origin(path, users=users_1+users_2, folders=folder_train, frame_size=30)
   print("training samples : ", x_train.shape[0])
   
-  x_val, y_val, sessions_val = data_load_origin(path, users=users_2+users_1, folders=folder_val, frame_size=30)
+  x_val, y_val, sessions_val = data_load_origin(path, users=users_1+users_2, folders=folder_val, frame_size=30)
   print("validation samples : ", x_val.shape[0])
   
-  x_test, y_test, sessions_test = data_load_origin(path, users=users_2+users_1, folders=folder_test, frame_size=30)
+  x_test, y_test, sessions_test = data_load_origin(path, users=users_1+users_2, folders=folder_test, frame_size=30)
   print("testing samples : ", x_test.shape[0])
   
   classes, counts  = np.unique(y_train, return_counts=True)
