@@ -14,7 +14,8 @@ transformation_list=[np.array([DA_Jitter]),
                     np.array([DA_Drop]),
                     np.array([DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop])]
                     
-#transformation_list=[np.array([DA_Jitter])]
+#transformation_list=[np.array([DA_Jitter]),
+#                    np.array([DA_Scaling])]
 
 sigma_lst=[np.array([0.1]),
           np.array([0.2]),
@@ -24,10 +25,11 @@ sigma_lst=[np.array([0.1]),
           np.array([3]),
           np.array([0.1, 0.2, 0.2, None, None, 3])]
           
-#sigma_lst=[np.array([0.1])]
+#sigma_lst=[np.array([0.1]),
+#          np.array([0.2])]
 
 name_list=["Noise", "Scaling", "Magnitude Warp", "Random Sampling", "Flip", "Drop", "all"]
-#name_list=["Noise"]
+#name_list=["Noise", "Scaling"]
 
 model_name="musicid_aug_comp_multi task"
 
@@ -57,9 +59,13 @@ for transformations, sigma_l, name in zip(transformation_list, sigma_lst, name_l
   
 acc = np.array(acc_1)
 kappa = np.array(kappa_1)
-names = np.array(name_list, dtype=object)
-kappa_mean = np.mean(kappa, axis=0)
-kappa_csv = np.concatenate(([names], kappa, [kappa_mean]), axis=1)
+names = np.array([name_list], dtype=object)
+kappa_mean = np.mean(kappa, axis=1)
+kappa_mean = np.reshape(kappa_mean, (kappa_mean.shape[0],1))
+print("names shape", names.T.shape)
+print("data shape", kappa.shape)
+print("kappa mean shape", kappa_mean.shape)
+kappa_csv = np.concatenate((names.T, kappa, kappa_mean), axis=1)
 
 headers=["augmentation"]
 for itr in range(iters):
@@ -71,9 +77,10 @@ np.savez("graph_data/"+model_name+"_scen_1.npz",names=names, test_acc=acc, kappa
 
 acc = np.array(acc_3)
 kappa = np.array(kappa_3)
-names = np.array(name_list, dtype=object)
-kappa_mean = np.mean(kappa, axis=0)
-kappa_csv = np.concatenate(([names], kappa, [kappa_mean]), axis=1)
+names = np.array([name_list], dtype=object)
+kappa_mean = np.mean(kappa, axis=1)
+kappa_mean = np.reshape(kappa_mean, (kappa_mean.shape[0],1))
+kappa_csv = np.concatenate((names.T, kappa, kappa_mean), axis=1)
 
 headers=["augmentation"]
 for itr in range(iters):
