@@ -15,14 +15,14 @@ from simsiam import *
 from backbones import *
 from data_loader import *
 
-def pre_trainer(scen, fet):
+def pre_trainer(transformations1, transformations2):
   frame_size   = 30
   BATCH_SIZE = 40
   origin = False
   EPOCHS = 100
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
-  users_2 = list(range(9,21)) #Users for dataset 2
+  users_2 = list(range(7,21)) #Users for dataset 2
   users_1 = users = list(range(1,7)) #Users for dataset 1
   folder_train = ["TrainingSet","TestingSet_secret", "TestingSet"]
   
@@ -33,21 +33,23 @@ def pre_trainer(scen, fet):
   x_train = norma_pre(x_train)
   print("x_train", x_train.shape)
   
-  def aug1_numpy(x):
+  def aug1_numpy(x): #Jitter 0.5 scale 1
     # x will be a numpy array with the contents of the input to the
     # tf.function
-    x = DA_Jitter(x, 0.5)
-    return DA_Scaling(x, 1)
+    for aug in transformations1:
+      x=aug(x)
+    return x
   @tf.function(input_signature=[tf.TensorSpec(None, tf.float64)])
   def tf_aug1(input):
     y = tf.numpy_function(aug1_numpy, [input], tf.float64)
     return y
     
-  def aug2_numpy(x):
+  def aug2_numpy(x): #Jitter 0.5 scale 1
     # x will be a numpy array with the contents of the input to the
     # tf.function
-    x = DA_Jitter(x, 0.5)
-    return DA_Scaling(x, 1)
+    for aug in transformations2:
+      x=aug(x)
+    return x
   @tf.function(input_signature=[tf.TensorSpec(None, tf.float64)])
   def tf_aug2(input):
     y = tf.numpy_function(aug2_numpy, [input], tf.float64)
@@ -106,30 +108,8 @@ def pre_trainer(scen, fet):
   
   backbone.summary()
   
-  backbone = tf.keras.Model(backbone.input, backbone.layers[-fet].output)
+  backbone = tf.keras.Model(backbone.input, backbone.layers[-6].output)
   
   backbone.summary()
-  
-  x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
-    
-  x_train = norma_pre(x_train)
-  enc_results = backbone(x_train)
-  enc_results = np.array(enc_results)
-  X_embedded = TSNE(n_components=2).fit_transform(enc_results)
-  fig4 = plt.figure(figsize=(18,12))
-  plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.savefig('graphs/latentspace_scen_1.png')
-  plt.close(fig4)
-  
-  
-  x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
-  x_train = norma_pre(x_train)
-  enc_results = backbone(x_train)
-  enc_results = np.array(enc_results)
-  X_embedded = TSNE(n_components=2).fit_transform(enc_results)
-  fig4 = plt.figure(figsize=(18,12))
-  plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.savefig('graphs/latentspace_scen_3.png')
-  plt.close(fig4)
   
   return backbone

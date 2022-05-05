@@ -1,26 +1,14 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
 import tensorflow as tf
 import tensorflow_addons as tfa
 from tensorflow.keras import Input, Model
-from tensorflow.keras.layers import Dense, Flatten
-from tensorflow.keras import layers
-from sklearn.manifold import TSNE
-from sklearn.metrics import roc_curve
+from tensorflow.keras.layers import Dense
 
 from backbones import *
 from data_loader import *
 
-#0 #17
-# single layer: ft=5 #12
-# 2 layer: ft=6 #11
-# 3 layer: ft=9 #8
-# 4 layer: ft=12 #5
-# all layer: ft=17 #0
-
 def trainer(samples_per_user, fet_extrct, scen, ft):
-    
+  
   ft_dict = {0:17, 1:12, 2:11, 3:8, 4:5, 5:0}
   ft = ft_dict[ft]
   
@@ -31,13 +19,13 @@ def trainer(samples_per_user, fet_extrct, scen, ft):
   frame_size   = 30
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
-  users_2 = list(range(9,21)) #Users for dataset 2
+  users_2 = list(range(7,21)) #Users for dataset 2
   users_1 = list(range(1,7)) #Users for dataset 1
   
-  if scen==3:
-    users = users_2
-  elif scen==1:
+  if scen==1:
     users = users_1
+  elif scen==3:
+    users = users_2
   
   ######################################################Transfering##########################################################################################
   

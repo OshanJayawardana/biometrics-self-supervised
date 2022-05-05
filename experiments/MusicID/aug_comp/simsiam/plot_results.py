@@ -2,61 +2,101 @@ from trainers import *
 from pre_trainers import *
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd 
+from transformations import *
 
-def plotspu(ft):
-  scen = 3
-  fet_extrct = pre_trainer(scen=scen, fet=6)
+iters = 10
+
+transformation_list=[[DA_Jitter],
+                    [DA_Scaling],
+                    [DA_MagWarp],
+                    [DA_RandSampling],
+                    [DA_Flip],
+                    [DA_Drop],
+                    [DA_Jitter, DA_Scaling]]
+
+#transformation_list=[[DA_Jitter],
+#                    [DA_Scaling]]                    
+
+name_list=["Noise", "Scaling", "Magnitude Warp", "Random Sampling", "Flip", "Drop", "Noise+Scaling"]
+#name_list=["Noise", "Scaling"]
+
+model_name="musicid_aug_comp_simsiam"
+
+variable_name="transformations"
+
+acc_1=[]
+acc_3=[]
+kappa_1=[]
+kappa_3=[]
+name_lst_0=[]
+name_lst_1=[]
+name_lst_2=[]
+for transformations1, name1 in zip(transformation_list, name_list):
+  for transformations2, name2 in zip(transformation_list, name_list):
+    acc_temp_1=[]
+    kappa_temp_1=[]
+    acc_temp_3=[]
+    kappa_temp_3=[]
+    name_lst_1.append(name1)
+    name_lst_2.append(name2)
+    name_lst_0.append(name1+'_'+name2)
+    fet_extrct = pre_trainer(transformations1, transformations2)
+    for itr in range(iters):
+      test_acc_1, kappa_score_1 = trainer(60, fet_extrct,scen=1, ft=0)
+      test_acc_3, kappa_score_3 = trainer(60, fet_extrct,scen=3, ft=0)
+      acc_temp_1.append(test_acc_1)
+      acc_temp_3.append(test_acc_3)
+      kappa_temp_1.append(kappa_score_1)
+      kappa_temp_3.append(kappa_score_3)
+    acc_1.append(acc_temp_1)
+    acc_3.append(acc_temp_3)
+    kappa_1.append(kappa_temp_1)
+    kappa_3.append(kappa_temp_3)
   
-  if ft==0:
-    model_name="musicid_scen"+str(scen)+"_simsiam"
-  else:
-    model_name="musicid_scen"+str(scen)+'_ft'+str(ft)+"_simsiam"
-  
-  variable_name="samples per user"
-  variable=[1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,24,28,32,36,40,45,50,55,60]
-  #variable=[15,20]
-  acc=[]
-  kappa=[]
-  for el in variable:
-    acc_temp=[]
-    kappa_temp=[]
-    for itr in range(10):
-      test_acc, kappa_score = trainer(el, fet_extrct, scen, ft=ft)
-      acc_temp.append(test_acc)
-      kappa_temp.append(kappa_score)
-    acc.append(acc_temp)
-    kappa.append(kappa_temp)
-  acc = np.array(acc)
-  kappa = np.array(kappa)
-  
-  np.savez("graph_data/"+model_name+".npz", test_acc=acc, kappa_score=kappa)
-  print(acc.shape)
-  print(kappa.shape)
-  
-  kappa_max = np.max(kappa, axis=1)
-  plt.figure(figsize=(12,8))
-  plt.plot(variable,kappa_max, 'm', label=model_name)
-  plt.title("kappa score vs "+variable_name)
-  plt.xlabel(variable_name)
-  plt.ylabel("kappa score")
-  plt.legend()
-  plt.show()
-  if ft==0:
-    plt.savefig('graphs/kappa_scen'+str(scen)+'.jpg')
-  else:
-    plt.savefig('graphs/kappa_scen'+str(scen)+'_ft'+str(ft)+'.jpg')
-  plt.close()
-  
-  acc_max = np.max(acc, axis=1)
-  plt.figure(figsize=(12,8))
-  plt.plot(variable,acc_max, 'm', label=model_name)
-  plt.title("test accuracy vs "+variable_name)
-  plt.xlabel(variable_name)
-  plt.ylabel("test acuracy")
-  plt.legend()
-  plt.show()
-  if ft==0:
-    plt.savefig('graphs/acc_scen'+str(scen)+'.jpg')
-  else:
-    plt.savefig('graphs/acc_scen'+str(scen)+'_ft'+str(ft)+'.jpg')
-  plt.close()
+acc = np.array(acc_1)
+kappa = np.array(kappa_1)
+names_0 = np.array([name_lst_0], dtype=object)
+names_1 = np.array([name_lst_1], dtype=object)
+names_2 = np.array([name_lst_2], dtype=object)
+kappa_mean = np.mean(kappa, axis=1)
+kappa_mean = np.reshape(kappa_mean, (kappa_mean.shape[0],1))
+kappa_csv = np.concatenate((names_0.T, names_1.T, names_2.T, kappa, kappa_mean), axis=1)
+
+headers=["augmentation_couple", "augmentation_1", "augmentation_2"]
+for itr in range(iters):
+  headers.append("iter_"+str(itr))
+headers.append("average")
+pd.DataFrame(kappa_csv).to_csv("graph_data/"+model_name+"_scen_1_kappa.csv", index=False, header=headers)
+
+names = np.array([name_list], dtype=object)
+kappa_mean = np.mean(kappa, axis=1)
+kappa_mean = np.reshape(kappa_mean, (len(name_list),len(name_list)))
+kappa_matrix = np.concatenate((names.T,kappa_mean), axis=1)
+pd.DataFrame(kappa_matrix).to_csv("graph_data/"+model_name+"_scen_1_kappa_matrix.csv", index=False, header=["augmentation"]+name_list)
+
+
+np.savez("graph_data/"+model_name+"_scen_1.npz", names_0=names_0, names_1=names_1, names_2=names_2, test_acc=acc, kappa_score=kappa)
+
+acc = np.array(acc_3)
+kappa = np.array(kappa_3)
+names_0 = np.array([name_lst_0], dtype=object)
+names_1 = np.array([name_lst_1], dtype=object)
+names_2 = np.array([name_lst_2], dtype=object)
+kappa_mean = np.mean(kappa, axis=1)
+kappa_mean = np.reshape(kappa_mean, (kappa_mean.shape[0],1))
+kappa_csv = np.concatenate((names_0.T, names_1.T, names_2.T, kappa, kappa_mean), axis=1)
+
+headers=["augmentation_couple", "augmentation_1", "augmentation_2"]
+for itr in range(iters):
+  headers.append("iter_"+str(itr))
+headers.append("average")
+pd.DataFrame(kappa_csv).to_csv("graph_data/"+model_name+"_scen_3_kappa.csv", index=False, header=headers)
+
+names = np.array([name_list], dtype=object)
+kappa_mean = np.mean(kappa, axis=1)
+kappa_mean = np.reshape(kappa_mean, (len(name_list),len(name_list)))
+kappa_matrix = np.concatenate((names.T,kappa_mean), axis=1)
+pd.DataFrame(kappa_matrix).to_csv("graph_data/"+model_name+"_scen_3_kappa_matrix.csv", index=False, header=["augmentation"]+name_list)
+
+np.savez("graph_data/"+model_name+"_scen_3.npz", names_0=names_0, names_1=names_1, names_2=names_2, test_acc=acc, kappa_score=kappa)

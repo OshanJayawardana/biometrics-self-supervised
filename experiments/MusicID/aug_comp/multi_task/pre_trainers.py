@@ -124,7 +124,7 @@ def pre_trainer(transformations, sigma_l, name_aug):
   X_embedded = TSNE(n_components=2).fit_transform(enc_results)
   fig4 = plt.figure(figsize=(18,12))
   plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.title('scen_1_'+name_aug)
+  plt.title('scen_3_'+name_aug)
   plt.savefig('graphs/latentspace_scen_3_'+name_aug+'.png')
   plt.close(fig4)
   
