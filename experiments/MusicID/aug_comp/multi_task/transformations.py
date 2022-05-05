@@ -110,6 +110,7 @@ def DA_ChannelShuffle(X, sigma=0):
     
 def DA_Drop(X, W=7, sigma=0):
     W=sigma
+    W=int(W)
     indx=np.arange(X.shape[0]-W)
     np.random.shuffle(indx)
     X[indx[0]:indx[0]+W,:]=0
