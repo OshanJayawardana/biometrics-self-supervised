@@ -8,7 +8,7 @@ from sklearn.manifold import TSNE
 from backbones import *
 from data_loader import *
 
-def pre_trainer(transformations, sigma_l, name):
+def pre_trainer(transformations, sigma_l, name_aug):
   frame_size   = 30
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
@@ -59,7 +59,10 @@ def pre_trainer(transformations, sigma_l, name):
     head = Dense(1, activation='sigmoid', name=head_name)(dens)
     heads.append(head)
   
-  model = tf.keras.models.Model(inputs, heads, name='multi-task_self-supervised')
+  if len(transformations)==1:
+    model = tf.keras.models.Model(inputs[0], heads[0], name='multi-task_self-supervised')
+  else:
+    model = tf.keras.models.Model(inputs, heads, name='multi-task_self-supervised')
   
   loss=[]
   loss_weights=[]
@@ -96,7 +99,10 @@ def pre_trainer(transformations, sigma_l, name):
       x_.append(x_train[i])
       y_.append(y_train[i])
   
-  history=model.fit(x_, y_, epochs=30, shuffle=True, callbacks=[Logger()], verbose=False)
+  if len(transformations)==1:
+    history=model.fit(x_train[i], y_train[i], epochs=30, shuffle=True)
+  else:
+    history=model.fit(x_, y_, epochs=30, shuffle=True, callbacks=[Logger()], verbose=False)
   
   fet_extrct=model.layers[len(transformations)]
   
@@ -107,7 +113,8 @@ def pre_trainer(transformations, sigma_l, name):
   X_embedded = TSNE(n_components=2).fit_transform(enc_results)
   fig4 = plt.figure(figsize=(18,12))
   plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.savefig('graphs/latentspace_scen_3_'+name+'.png')
+  plt.title(name_aug)
+  plt.savefig('graphs/latentspace_scen_3_'+name_aug+'.png')
   plt.close(fig4)
   
   return fet_extrct

@@ -3,22 +3,22 @@ from pre_trainers import *
 import numpy as np
 import matplotlib.pyplot as plt
 
-transformation_list=[np.array([DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop]),
-                    np.array([DA_Jitter]),
+transformation_list=[np.array([DA_Jitter]),
                     np.array([DA_Scaling]),
                     np.array([DA_MagWarp]),
                     np.array([DA_RandSampling]),
                     np.array([DA_Flip]),
-                    np.array([DA_Drop])]
+                    np.array([DA_Drop]),
+                    np.array([DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop])]
 
-sigma_lst=[np.array([0.1, 0.2, 0.2, None, None, 3]),
-          np.array([0.1]),
+sigma_lst=[np.array([0.1]),
           np.array([0.2]),
           np.array([0.2]),
           np.array([None]),
           np.array([None]),
-          np.array([3])]
-name_list=["all", "Noise", "Scaling", "Magnitude Warp", "Random Sampling", "Flip", "Drop"]
+          np.array([3]),
+          np.array([0.1, 0.2, 0.2, None, None, 3])]
+name_list=["Noise", "Scaling", "Magnitude Warp", "Random Sampling", "Flip", "Drop", "all"]
 
 model_name="musicid_aug_comp_multi task"
 
