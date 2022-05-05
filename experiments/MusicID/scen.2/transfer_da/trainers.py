@@ -11,9 +11,14 @@ from sklearn.metrics import roc_curve
 
 from backbones import *
 from data_loader import *
+from transformations_tf import *
 
 def trainer(samples_per_user, fet_extrct, ft):
-
+  # single layer: ft=5
+  # 2 layer: ft=8
+  # 3 layer: ft=11
+  # 4 layer: ft=12
+  # all layer: ft=17
   ft_dict = {0:17, 1:12, 2:11, 3:8, 4:5, 5:0}
   ft = ft_dict[ft]
   
@@ -21,25 +26,26 @@ def trainer(samples_per_user, fet_extrct, ft):
   for i in range(1,ft+1):
     fet_extrct.layers[i].trainable = False
   
+  frame_size   = 30
+  BATCH_SIZE = 8
+  AUTO = tf.data.AUTOTUNE
   frame_size = 30
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
-  users_2 = list(range(9,21)) #Users for dataset 1
-  users_1 = list(range(1,7)) #Users for dataset 2
-  users_2 = users_2+users_1
-  
+  users_2 = list(range(7,21)) #Users for dataset 2
+  users_1 = list(range(1,7)) #Users for dataset 1
   folder_train = ["TrainingSet"]
   folder_val = ["TestingSet"]
   folder_test = ["TestingSet_secret"]
   ######################################################Transfering##########################################################################################
   
-  x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
+  x_train, y_train, sessions_train = data_load_origin(path, users=users_1+users_2, folders=folder_train, frame_size=30)
   print("training samples : ", x_train.shape[0])
   
-  x_val, y_val, sessions_val = data_load_origin(path, users=users_2, folders=folder_val, frame_size=30)
+  x_val, y_val, sessions_val = data_load_origin(path, users=users_1+users_2, folders=folder_val, frame_size=30)
   print("validation samples : ", x_val.shape[0])
   
-  x_test, y_test, sessions_test = data_load_origin(path, users=users_2, folders=folder_test, frame_size=30)
+  x_test, y_test, sessions_test = data_load_origin(path, users=users_1+users_2, folders=folder_test, frame_size=30)
   print("testing samples : ", x_test.shape[0])
   
   classes, counts  = np.unique(y_train, return_counts=True)
@@ -77,16 +83,9 @@ def trainer(samples_per_user, fet_extrct, ft):
   val_ds = tf.data.Dataset.from_tensor_slices((x_val, y_val))
   val_ds = val_ds.batch(BATCH_SIZE).prefetch(AUTO)
   
-  ks = 3
-  con =3
+  #resnettssd.trainable = False
   inputs = Input(shape=(frame_size, x_train.shape[-1]))
-  x = Conv1D(filters=16*con,kernel_size=ks,strides=1, padding='same')(inputs) 
-  x = BatchNormalization()(x)
-  x = ReLU()(x)
-  x = MaxPooling1D(pool_size=4, strides=4)(x)
-  x = Dropout(rate=0.1)(x)
-  x = resnetblock_final(x, CR=32*con, KS=ks)
-  x = Flatten()(x)
+  x = fet_extrct(inputs, training=False)
   x = Dense(256, activation='relu')(x)
   x = Dense(64, activation='relu')(x)
   outputs = Dense(num_classes, activation='softmax')(x)

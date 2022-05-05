@@ -12,11 +12,11 @@ from sklearn.metrics import roc_curve
 from backbones import *
 from data_loader import *
 
-def pre_trainer(scen):
+def pre_trainer():
   frame_size   = 30
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
-  users_2 = list(range(9,21)) #Users for dataset 2
+  users_2 = list(range(7,21)) #Users for dataset 2
   users_1 = list(range(1,7)) #Users for dataset 1
   folder_train = ["TrainingSet","TestingSet_secret", "TestingSet"]
   
@@ -106,18 +106,5 @@ def pre_trainer(scen):
   history=model.fit(x_, y_, epochs=30, shuffle=True, callbacks=[Logger()], verbose=False)
   
   fet_extrct=model.layers[len(transformations)]
-  
-  if scen==3:
-    x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
-  elif scen==1:
-    x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
-    
-  enc_results = fet_extrct(x_train)
-  enc_results = np.array(enc_results)
-  X_embedded = TSNE(n_components=2).fit_transform(enc_results)
-  fig4 = plt.figure(figsize=(18,12))
-  plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.savefig('graphs/latentspace_scen_'+str(scen)+'.png')
-  plt.close(fig4)
   
   return fet_extrct
