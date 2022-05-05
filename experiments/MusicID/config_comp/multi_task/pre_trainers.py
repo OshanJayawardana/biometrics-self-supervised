@@ -2,13 +2,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from tensorflow.keras import Input
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dense, Flatten
 from sklearn.manifold import TSNE
 
 from backbones import *
 from data_loader import *
+from trunks import *
 
-def pre_trainer(transformations, sigma_l, name_aug):
+def pre_trainer(config_num):
   frame_size   = 30
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
@@ -22,27 +23,22 @@ def pre_trainer(transformations, sigma_l, name_aug):
   x_train = norma_pre(x_train)
   print("x_train", x_train.shape)
   
-  #sigma_l=np.array([0.2, None])
+  ################################################################################################################################
+  transformations = np.array([DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop])
+  sigma_l = np.array([0.1, 0.2, 0.2, None, None, 3])
+  
   x_train, y_train = aug_data(x_train, y_train, transformations, sigma_l, ext=False)
   
-  con=3
-  ks=3
-  def trunk():
-    input_ = Input(shape=(frame_size,x_train.shape[-1]), name='input_')
-    x = Conv1D(filters=16*con,kernel_size=ks,strides=1, padding='same')(input_) 
-    x = BatchNormalization()(x)
-    x = ReLU()(x)
-    x = MaxPooling1D(pool_size=4, strides=4)(x)
-    x = Dropout(rate=0.1)(x)
-    x = resnetblock_final(x, CR=32*con, KS=ks)
-    return tf.keras.models.Model(input_,x,name='trunk_')
+  
+  trunk_lst = [trunk_1, trunk_2, trunk_3, trunk_4, trunk_5, trunk_6]
     
   inputs = []
   for i in range(len(transformations)):
     name = 'input_'+str(i+1)
     inputs.append(Input(shape=(frame_size,x_train.shape[-1]), name=name))
   
-  trunk=trunk()
+  trunk=trunk_lst[config_num]
+  trunk=trunk(frame_size, ft_len=x_train.shape[-1])
   trunk.summary()
   
   fets = []
@@ -113,8 +109,8 @@ def pre_trainer(transformations, sigma_l, name_aug):
   X_embedded = TSNE(n_components=2).fit_transform(enc_results)
   fig4 = plt.figure(figsize=(18,12))
   plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.title('scen_1_'+name_aug)
-  plt.savefig('graphs/latentspace_scen_1_'+name_aug+'.png')
+  plt.title('scen_1_'+str(config_num+1))
+  plt.savefig('graphs/latentspace_scen_1_'+str(config_num+1)+'.png')
   plt.close(fig4)
   
   x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
@@ -124,8 +120,8 @@ def pre_trainer(transformations, sigma_l, name_aug):
   X_embedded = TSNE(n_components=2).fit_transform(enc_results)
   fig4 = plt.figure(figsize=(18,12))
   plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.title('scen_1_'+name_aug)
-  plt.savefig('graphs/latentspace_scen_3_'+name_aug+'.png')
+  plt.title('scen_1_'+str(config_num+1))
+  plt.savefig('graphs/latentspace_scen_3_'+str(config_num+1)+'.png')
   plt.close(fig4)
   
   return fet_extrct

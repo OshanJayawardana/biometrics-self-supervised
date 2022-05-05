@@ -12,9 +12,9 @@ def trainer(samples_per_user, fet_extrct, scen, ft):
   ft_dict = {0:17, 1:12, 2:11, 3:8, 4:5, 5:0}
   ft = ft_dict[ft]
   
-  #fet_extrct.trainable = False
-  for i in range(1,ft+1):
-    fet_extrct.layers[i].trainable = False
+  fet_extrct.trainable = False
+  #for i in range(1,ft+1):
+    #fet_extrct.layers[i].trainable = False
   
   frame_size   = 30
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
