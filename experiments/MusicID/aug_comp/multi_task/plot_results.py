@@ -25,21 +25,21 @@ transformation_list=[np.array([DA_Jitter]),
 #transformation_list=[np.array([DA_Jitter]),
 #                    np.array([DA_Scaling])]
 
-sigma_lst=[np.array([0.1]), #Noise
-          np.array([0.2]), #Scaling
-          np.array([0.2]), #Magnitude Warp
+sigma_lst=[np.array([0.1*10]), #Noise
+          np.array([0.2*10]), #Scaling
+          np.array([0.2*10]), #Magnitude Warp
           np.array([None]), #Random Sampling
           np.array([None]), #Flip
           np.array([3]), #Drop
-          np.array([0.2]), #TimeWarp
+          np.array([0.2*10]), #TimeWarp
           np.array([None]), #Negation
           np.array([None]), #Channel shuffle
-          np.array([0.1]), #Permutations
-          np.array([0.1,0.2]), #Noise,scale
-          np.array([0.2,3]), #Magnitude Warp, Drop
-          np.array([0.1,0.2,0.2,3]), #Noise,scale,Magnitude Warp, Drop
-          np.array([0.1, 0.2, 0.2, None, None, 3]), #all1 DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop
-          np.array([0.1, 0.2, 0.2, None, None, 3, 0.2, None, None, 0.1])] #all
+          np.array([0.1*10]), #Permutations
+          np.array([0.1*10,0.2*10]), #Noise,scale
+          np.array([0.2*10,3]), #Magnitude Warp, Drop
+          np.array([0.1*10,0.2*10,0.2*10,3]), #Noise,scale,Magnitude Warp, Drop
+          np.array([0.1*10, 0.2*10, 0.2*10, None, None, 3]), #all1 DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop
+          np.array([0.1*10, 0.2*10, 0.2*10, None, None, 3, 0.2*10, None, None, 0.1*10])] #all
 #sigma_lst=[np.array([0.1]),
 #          np.array([0.2])]
 
