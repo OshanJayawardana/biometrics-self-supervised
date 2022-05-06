@@ -27,7 +27,11 @@ def get_encoder(frame_size,ftr,mlp_s, config_num, reg_con, origin):
     return tf.keras.Model(inputs, outputs, name="encoder")
     
 
-def get_predictor(mlp_s, origin):
+def get_predictor(mlp_s, pred_config_num, origin):
+
+    pred_list = [predTian_1, predTian_2, predTian_3, predTian_4]
+    
+    predTian = pred_list[pred_config_num]
     
     inputs = layers.Input((mlp_s//4,))
     

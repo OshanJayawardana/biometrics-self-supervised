@@ -16,14 +16,15 @@ from backbones import *
 from data_loader import *
 from transformations import *
 
-def pre_trainer(reg_con):
+def pre_trainer(pred_config_num):
   
   transformations1, transformations2 = [DA_MagWarp, DA_Jitter], [DA_Scaling, DA_Flip]
   config_num = 2
+  reg_con = 0.01
   frame_size   = 30
   BATCH_SIZE = 40
   origin = False
-  EPOCHS = 100
+  EPOCHS = 50
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
   users_2 = list(range(7,21)) #Users for dataset 2
@@ -95,11 +96,11 @@ def pre_trainer(reg_con):
   
   # Compile model and start training.
   #SGD(lr_decayed_fn, momentum=0.9)
-  
+   
   en = get_encoder(frame_size,x_train.shape[-1],mlp_s, config_num=config_num, reg_con=reg_con, origin=origin)
   en.summary()
   
-  contrastive = Contrastive(get_encoder(frame_size, x_train.shape[-1], mlp_s, config_num=config_num, reg_con=reg_con, origin=origin), get_predictor(mlp_s, origin))
+  contrastive = Contrastive(get_encoder(frame_size, x_train.shape[-1], mlp_s, config_num=config_num, reg_con=reg_con, origin=origin), get_predictor(mlp_s, pred_config_num=pred_config_num, origin=origin))
   contrastive.compile(optimizer=tf.keras.optimizers.Adam(lr_decayed_fn))
   
   history = contrastive.fit(ssl_ds, epochs=EPOCHS, callbacks=[early_stopping])
@@ -121,8 +122,8 @@ def pre_trainer(reg_con):
   X_embedded = TSNE(n_components=2).fit_transform(enc_results)
   fig4 = plt.figure(figsize=(18,12))
   plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.title('scen_1_'+str(reg_con))
-  plt.savefig('graphs/latentspace_scen_1_'+str(reg_con)+'.png')
+  plt.title('scen_1_'+str(pred_config_num+1))
+  plt.savefig('graphs/latentspace_scen_1_'+str(pred_config_num+1)+'.png')
   plt.close(fig4)
   
   x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
@@ -132,8 +133,8 @@ def pre_trainer(reg_con):
   X_embedded = TSNE(n_components=2).fit_transform(enc_results)
   fig4 = plt.figure(figsize=(18,12))
   plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.title('scen_1_'+str(reg_con))
-  plt.savefig('graphs/latentspace_scen_3_'+str(reg_con)+'.png')
+  plt.title('scen_1_'+str(pred_config_num+1))
+  plt.savefig('graphs/latentspace_scen_3_'+str(pred_config_num+1)+'.png')
   plt.close(fig4)
   
   return backbone

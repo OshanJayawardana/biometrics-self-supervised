@@ -5,24 +5,22 @@ import matplotlib.pyplot as plt
 import pandas as pd 
 
 iters = 10
-property = "regularization"
+property = "predictor"
 
-model_name="musicid_reg_comp_simsiam"
+model_name="musicid_pred_comp_simsiam"
 
-
-name_list = ["0.1", "0.01", "0.001", "0.0001", "0.00001"]
-reg_con_list = [0.1, 0.01, 0.001, 0.0001, 0.00001]
+name_list = ["1 layer", "2 layers", "3 layers", "4 layers"]
 
 acc_1=[]
 acc_3=[]
 kappa_1=[]
 kappa_3=[]
-for reg_con in reg_con_list:
+for pred_config_num in range(4):
   acc_temp_1=[]
   kappa_temp_1=[]
   acc_temp_3=[]
   kappa_temp_3=[]
-  fet_extrct = pre_trainer(reg_con)
+  fet_extrct = pre_trainer(pred_config_num)
   for itr in range(iters):
     test_acc_1, kappa_score_1 = trainer(60, fet_extrct,scen=1, ft=0)
     test_acc_3, kappa_score_3 = trainer(60, fet_extrct,scen=3, ft=0)
