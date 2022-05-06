@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd 
 
-iters = 1
+iters = 10
 property = "configuration"
 
 model_name="musicid_config_comp_simsiam"
