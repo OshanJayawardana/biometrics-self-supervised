@@ -12,29 +12,43 @@ transformation_list=[np.array([DA_Jitter]),
                     np.array([DA_RandSampling]),
                     np.array([DA_Flip]),
                     np.array([DA_Drop]),
+                    np.array([DA_TimeWarp]),
+                    np.array([DA_Negation]),
+                    np.array([DA_ChannelShuffle]),
+                    np.array([DA_Permutation]),
                     np.array([DA_Jitter, DA_Scaling]),
                     np.array([DA_MagWarp, DA_Drop]),
                     np.array([DA_Jitter, DA_Scaling, DA_MagWarp, DA_Drop]),
-                    np.array([DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop])]
+                    np.array([DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop]),
+                    np.array([DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop, DA_TimeWarp, DA_Negation, DA_ChannelShuffle, DA_Permutation])]
                     
 #transformation_list=[np.array([DA_Jitter]),
 #                    np.array([DA_Scaling])]
 
-sigma_lst=[np.array([0.1]),
-          np.array([0.2]),
-          np.array([0.2]),
-          np.array([None]),
-          np.array([None]),
-          np.array([3]),
-          np.array([0.1,0.2]),
-          np.array([0.2,3]),
-          np.array([0.1,0.2,0.2,3]),
-          np.array([0.1, 0.2, 0.2, None, None, 3])]
-          
+sigma_lst=[np.array([0.1]), #Noise
+          np.array([0.2]), #Scaling
+          np.array([0.2]), #Magnitude Warp
+          np.array([None]), #Random Sampling
+          np.array([None]), #Flip
+          np.array([3]), #Drop
+          np.array([0.2]), #TimeWarp
+          np.array([None]), #Negation
+          np.array([None]), #Channel shuffle
+          np.array([0.1]), #Permutations
+          np.array([0.1,0.2]), #Noise,scale
+          np.array([0.2,3]), #Magnitude Warp, Drop
+          np.array([0.1,0.2,0.2,3]), #Noise,scale,Magnitude Warp, Drop
+          np.array([0.1, 0.2, 0.2, None, None, 3]), #all1 DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop
+          np.array([0.1, 0.2, 0.2, None, None, 3, 0.2, None, None, 0.1])] #all
 #sigma_lst=[np.array([0.1]),
 #          np.array([0.2])]
 
-name_list=["Noise", "Scaling", "Magnitude Warp", "Random Sampling", "Flip", "Drop","Noise,scale", "Magnitude Warp, Drop", "Noise,scale,Magnitude Warp, Drop","all"]
+name_list=["Noise", "Scaling", "Magnitude Warp", "Random Sampling", "Flip", "Drop",
+          "TimeWarp",
+          "Negation",
+          "Channel shuffle",
+          "Permutations",
+          "Noise,scale", "Magnitude Warp, Drop", "Noise,scale,Magnitude Warp, Drop","all_0", "all_1"]
 #name_list=["Noise", "Scaling"]
 
 model_name="musicid_aug_comp_multi task"

@@ -55,7 +55,7 @@ def DA_Rotation(X,sigma=0):
     angle = np.random.uniform(low=-np.pi, high=np.pi)
     return np.matmul(X , axangle2mat(axis,angle))
 
-def DA_Permutation(X, nPerm=1, minSegLength=10, sigma=0):
+def DA_Permutation(X, nPerm=4, minSegLength=10, sigma=0):
     X_new = np.zeros(X.shape)
     idx = np.random.permutation(nPerm)
     bWhile = True
@@ -108,7 +108,7 @@ def DA_ChannelShuffle(X, sigma=0):
     np.random.shuffle(indx)
     return X[:,indx]
     
-def DA_Drop(X, W=7, sigma=0):
+def DA_Drop(X, W=7, sigma=10):
     W=sigma
     W=int(W)
     indx=np.arange(X.shape[0]-W)
