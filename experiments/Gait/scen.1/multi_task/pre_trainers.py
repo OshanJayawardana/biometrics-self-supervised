@@ -13,15 +13,14 @@ from backbones import *
 from data_loader import *
 
 def pre_trainer(scen):
-  frame_size   = 30
-  path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
-  users_2 = list(range(9,21)) #Users for dataset 2
-  users_1 = list(range(1,7)) #Users for dataset 1
-  folder_train = ["TrainingSet","TestingSet_secret", "TestingSet"]
+  frame_size   = 128
+  path = "/home/oshanjayawardanav100/biometrics-self-supervised/gait_dataset/idnet/"
   
-  x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
-  print("training samples : ", x_train.shape[0])
+  users_2 = list(range(17,51)) #Users for dataset 2
+  users_1 = list(range(1,17)) #Users for dataset 1
+  
+  x_train, y_train, x_val, y_val, x_test, y_test, sessions = data_loader_gait(path, classes=users_2, frame_size=frame_size)
   
   x_train = norma_pre(x_train)
   print("x_train", x_train.shape)
@@ -32,7 +31,7 @@ def pre_trainer(scen):
   #sigma_l=np.array([0.2, None])
   x_train, y_train = aug_data(x_train, y_train, transformations, sigma_l, ext=False)
   
-  con=3
+  con=1
   ks=3
   def trunk():
     input_ = Input(shape=(frame_size,x_train.shape[-1]), name='input_')
@@ -107,10 +106,9 @@ def pre_trainer(scen):
   
   fet_extrct=model.layers[len(transformations)]
   
-  if scen==3:
-    x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
-  elif scen==1:
-    x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
+  
+  x_train, y_train, x_val, y_val, x_test, y_test, sessions = data_loader_gait(path, classes=users_2, frame_size=frame_size)
+  x_train = norma_pre(x_train)
     
   enc_results = fet_extrct(x_train)
   enc_results = np.array(enc_results)

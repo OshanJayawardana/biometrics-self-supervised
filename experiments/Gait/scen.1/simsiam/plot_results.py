@@ -5,12 +5,12 @@ import matplotlib.pyplot as plt
 
 def plotspu(ft):
   scen = 1
-  fet_extrct = pre_trainer(scen=scen)
+  fet_extrct = pre_trainer(scen=scen, fet=6)
   
   if ft==0:
-    model_name="musicid_scen"+str(scen)+"_multi task"
+    model_name="gait_scen"+str(scen)+"_simsiam"
   else:
-    model_name="musicid_scen"+str(scen)+'_ft'+str(ft)+"_multi task"
+    model_name="gait_scen"+str(scen)+'_ft'+str(ft)+"_simsiam"
   
   variable_name="samples per user"
   variable=[1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,24,28,32,36,40,45,50,55,60]
@@ -60,4 +60,3 @@ def plotspu(ft):
   else:
     plt.savefig('graphs/acc_scen'+str(scen)+'_ft'+str(ft)+'.jpg')
   plt.close()
-  return True
