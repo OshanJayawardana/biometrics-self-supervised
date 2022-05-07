@@ -1,13 +1,8 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
 import tensorflow as tf
 import tensorflow_addons as tfa
 from tensorflow.keras import Input, Model
 from tensorflow.keras.layers import Dense, Flatten
-from tensorflow.keras import layers
-from sklearn.manifold import TSNE
-from sklearn.metrics import roc_curve
 
 from backbones import *
 from data_loader import *

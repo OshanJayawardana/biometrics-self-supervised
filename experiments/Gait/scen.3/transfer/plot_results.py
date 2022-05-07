@@ -5,11 +5,6 @@ import matplotlib.pyplot as plt
 
 def plotspu(ft):
   fet_extrct = pre_trainer()
-  # single layer: ft=5
-  # 2 layer: ft=8
-  # 3 layer: ft=11
-  # 4 layer: ft=12
-  # all layer: ft=17
   
   if ft==0:
     model_name="gait_scen3_transfer"

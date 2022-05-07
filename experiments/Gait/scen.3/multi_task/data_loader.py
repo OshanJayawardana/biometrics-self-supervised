@@ -182,7 +182,10 @@ def data_loader_gait(path, classes, frame_size=128):
         sess_count=0
         for session_id in range(1,2):
             try:
-                foldername = "u"+str(user_id).rjust(3, '0')+"_w"+str(session_id).rjust(3, '0')
+                if user==40:
+                  foldername = "u"+str(user).rjust(3, '0')+"_w"+str(2).rjust(3, '0')
+                else:
+                  foldername = "u"+str(user).rjust(3, '0')+"_w"+str(session_id).rjust(3, '0')
                 filename_acc = os.path.join(path,foldername,foldername+"_accelerometer.log")
                 data_acc = pd.read_csv(filename_acc, header=0, sep="\t")
                 acc_x, acc_y, acc_z = np.array(data_acc.accelerometer_x_data), np.array(data_acc.accelerometer_y_data), np.array(data_acc.accelerometer_z_data)
@@ -207,20 +210,20 @@ def data_loader_gait(path, classes, frame_size=128):
 
                 if x_train.shape[0]==0:
                     x_train  = data_train
-                    y_train += [user_id-1]*data_train.shape[0]
+                    y_train += [user_id]*data_train.shape[0]
                     x_val  = data_val
-                    y_val += [user_id-1]*data_val.shape[0]
+                    y_val += [user_id]*data_val.shape[0]
                     x_test  = data_test
-                    y_test += [user_id-1]*data_test.shape[0]
+                    y_test += [user_id]*data_test.shape[0]
                 else:
                     x_train  = np.concatenate((x_train,data_train), axis=0)
-                    y_train += [user_id-1]*data_train.shape[0]
+                    y_train += [user_id]*data_train.shape[0]
 
                     x_val = np.concatenate((x_val,data_val), axis=0)
-                    y_val += [user_id-1]*data_val.shape[0]
+                    y_val += [user_id]*data_val.shape[0]
 
                     x_test = np.concatenate((x_test,data_test), axis=0)
-                    y_test += [user_id-1]*data_test.shape[0]
+                    y_test += [user_id]*data_test.shape[0]
                 sess_count+=1
             except FileNotFoundError:
                 continue

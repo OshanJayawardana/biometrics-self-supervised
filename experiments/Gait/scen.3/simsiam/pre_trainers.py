@@ -1,13 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
 import tensorflow as tf
-from tensorflow.keras import Input, Model
-from tensorflow.keras.layers import Dense, Flatten
-from tensorflow.keras import layers
 from sklearn.manifold import TSNE
-from tensorflow.keras.models import Sequential
-from tensorflow.keras import regularizers
 from projectors import *
 from predictors import *
 from simsiam import *
@@ -22,7 +16,7 @@ def pre_trainer(scen, fet):
   frame_size   = 128
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/gait_dataset/idnet/"
   
-  users_2 = list(range(19,51)) #Users for dataset 2
+  users_2 = list(range(17,51)) #Users for dataset 2
   users_1 = list(range(1,17)) #Users for dataset 1
   
   x_train, y_train, sessions = data_loader_gait_pre(path, classes=users_1, frame_size=frame_size)
@@ -75,8 +69,6 @@ def pre_trainer(scen, fet):
   ssl_ds = tf.data.Dataset.zip((ssl_ds_one, ssl_ds_two))
   
   mlp_s=2048
-  con = 3
-  ks = 3
   num_training_samples = len(x_train)
   steps = EPOCHS * (num_training_samples // BATCH_SIZE)
   lr_decayed_fn = tf.keras.experimental.CosineDecay(

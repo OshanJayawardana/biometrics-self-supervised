@@ -1,23 +1,13 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
 import tensorflow as tf
 import tensorflow_addons as tfa
 from tensorflow.keras import Input, Model
-from tensorflow.keras.layers import Dense, Flatten
-from tensorflow.keras import layers
-from sklearn.manifold import TSNE
-from sklearn.metrics import roc_curve
+from tensorflow.keras.layers import Dense
 
 from backbones import *
 from data_loader import *
 
 def trainer(samples_per_user, fet_extrct, ft):
-  # single layer: ft=5
-  # 2 layer: ft=8
-  # 3 layer: ft=11
-  # 4 layer: ft=12
-  # all layer: ft=17
   lr = 0.001/(ft*10+1)
   
   ft_dict = {0:17, 1:12, 2:11, 3:8, 4:5, 5:0}
