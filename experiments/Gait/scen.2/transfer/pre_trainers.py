@@ -1,21 +1,19 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import tensorflow as tf
 import tensorflow_addons as tfa
 from tensorflow.keras import Input, Model
-from tensorflow.keras.layers import Dense, Flatten
-from sklearn.manifold import TSNE
+from tensorflow.keras.layers import Dense, Flatten, Conv1D, BatchNormalization, ReLU
 
 from backbones import *
 from data_loader import *
 
-def pre_trainer():
+def pre_trainer(samples_per_user):
   frame_size   = 128
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/gait_dataset/idnet/"
-  
-  users_2 = list(range(19,51)) #Users for dataset 2
+    
+  users_2 = list(range(17,51)) #Users for dataset 2
   users_1 = list(range(1,17)) #Users for dataset 1
-  
+    
   x_train, y_train, x_val, y_val, x_test, y_test, sessions = data_loader_gait(path, classes=users_1, frame_size=frame_size)
   
   classes, counts  = np.unique(y_train, return_counts=True)
@@ -27,10 +25,10 @@ def pre_trainer():
   print("x_val", x_val.shape)
   print("x_test", x_test.shape)
   
-  #x_train, y_train = user_data_split(x_train ,y_train , samples_per_user=samples_per_user)
-  #print("limited training samples : ", x_train.shape[0])
-  #classes, counts  = np.unique(y_train, return_counts=True)
-  #print(counts)
+  x_train, y_train = user_data_split(x_train ,y_train , samples_per_user=samples_per_user)
+  print("limited training samples : ", x_train.shape[0])
+  classes, counts  = np.unique(y_train, return_counts=True)
+  print(counts)
   
   ks = 3
   con =1
@@ -53,39 +51,22 @@ def pre_trainer():
   optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
   #optimizer = tf.keras.optimizers.Adam()
   resnettssd.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'] )
-  history = resnettssd.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=100, callbacks=callback, batch_size=32)
+  history = resnettssd.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=100, callbacks=callback, batch_size=8)
   
   results = resnettssd.evaluate(x_test,y_test)
   test_acc = results[1]
-  print("Pre training_test acc:", results[1])
+  print("test acc:", results[1])
   
   #Calculating kappa score
   metric = tfa.metrics.CohenKappa(num_classes=num_classes, sparse_labels=True)
   metric.update_state(y_true=y_test , y_pred=resnettssd.predict(x_test))
   result = metric.result()
   kappa_score = result.numpy()
-  print('"Pre training_kappa score: ',result.numpy())
+  print('kappa score: ',result.numpy())
   
   resnettssd = tf.keras.Model(
             resnettssd.input, resnettssd.layers[-5].output
         )
-  resnettssd.summary()
-  x_train, y_train, sessions_train = data_loader_gait_pre(path, classes=users_1, frame_size=128)
-  enc_results = resnettssd(x_train)
-  enc_results = np.array(enc_results)
-  X_embedded = TSNE(n_components=2).fit_transform(enc_results)
-  fig4 = plt.figure(figsize=(18,12))
-  plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.savefig('graphs/latentspace_scen_1.png')
-  plt.close(fig4)
+  #resnettssd.summary()
   
-  x_train, y_train, sessions_train = data_loader_gait_pre(path, classes=users_2, frame_size=128)
-  enc_results = resnettssd(x_train)
-  enc_results = np.array(enc_results)
-  X_embedded = TSNE(n_components=2).fit_transform(enc_results)
-  fig5 = plt.figure(figsize=(18,12))
-  plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.savefig('graphs/latentspace_scen_3.png')
-  plt.close(fig5)
-  
-  return resnettssd
+  return test_acc, kappa_score, resnettssd

@@ -1,20 +1,13 @@
-import pandas as pd
-from math import gcd
-import numpy as np
 from backbones import *
 from projectors import *
 from predictors import *
 import tensorflow as tf
-from tensorflow import keras
 from tensorflow.keras import layers
-from tensorflow.keras import regularizers
-from tensorflow.keras.optimizers import schedules
-from tensorflow.keras.layers import Flatten
 
 def get_encoder(frame_size,ftr,mlp_s,origin):
     # Input and backbone.
     ks = 3
-    con = 3
+    con = 1
     inputs = layers.Input((frame_size,ftr))
     x = Conv1D(filters=16*con,kernel_size=ks,strides=1, padding='same')(inputs) 
     x = BatchNormalization()(x)
