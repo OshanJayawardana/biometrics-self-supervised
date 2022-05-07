@@ -9,7 +9,7 @@ def proexp(inputs, mlp_s=2048):
   x = BatchNormalization()(x)
   x = Dense(mlp_s//4, activation='relu', kernel_regularizer=regularizers.l2(0.0001))(x)
   x = BatchNormalization()(x)
-  outputs = layers.Dense(mlp_s//2, activation='relu', kernel_regularizer=regularizers.l2(0.0001))(x)
+  outputs = Dense(mlp_s//2, activation='relu', kernel_regularizer=regularizers.l2(0.0001))(x)
   
   return outputs
   
