@@ -13,6 +13,7 @@ from backbones import *
 from data_loader import *
 
 def pre_trainer(scen):
+  EPOCHS = 30
   
   frame_size   = 128
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/gait_dataset/idnet/"
@@ -102,20 +103,8 @@ def pre_trainer(scen):
       x_.append(x_train[i])
       y_.append(y_train[i])
   
-  history=model.fit(x_, y_, epochs=30, shuffle=True, callbacks=[Logger()], verbose=False)
+  history=model.fit(x_, y_, epochs=EPOCHS, shuffle=True, callbacks=[Logger()], verbose=False)
   
   fet_extrct=model.layers[len(transformations)]
-  
-  
-  x_train, y_train, x_val, y_val, x_test, y_test, sessions = data_loader_gait(path, classes=users_2, frame_size=frame_size)
-  x_train = norma_pre(x_train)
-    
-  enc_results = fet_extrct(x_train)
-  enc_results = np.array(enc_results)
-  X_embedded = TSNE(n_components=2).fit_transform(enc_results)
-  fig4 = plt.figure(figsize=(18,12))
-  plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.savefig('graphs/latentspace_scen_'+str(scen)+'.png')
-  plt.close(fig4)
   
   return fet_extrct

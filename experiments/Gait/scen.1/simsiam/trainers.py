@@ -12,13 +12,6 @@ from sklearn.metrics import roc_curve
 from backbones import *
 from data_loader import *
 
-#0 #17
-# single layer: ft=5 #12
-# 2 layer: ft=6 #11
-# 3 layer: ft=9 #8
-# 4 layer: ft=12 #5
-# all layer: ft=17 #0
-
 def trainer(samples_per_user, fet_extrct, scen, ft):
     
   ft_dict = {0:17, 1:12, 2:11, 3:8, 4:5, 5:0}
@@ -66,7 +59,7 @@ def trainer(samples_per_user, fet_extrct, scen, ft):
   optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
   #optimizer = tf.keras.optimizers.Adam()
   resnettssd.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'] )
-  history = resnettssd.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=100, callbacks=callback, batch_size=8)
+  history = resnettssd.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=100, callbacks=callback, batch_size=32)
   
   results = resnettssd.evaluate(x_test,y_test)
   test_acc = results[1]

@@ -14,7 +14,7 @@ from tensorflow.keras.layers import Flatten
 def get_encoder(frame_size,ftr,mlp_s,origin):
     # Input and backbone.
     ks = 3
-    con = 1
+    con = 3
     inputs = layers.Input((frame_size,ftr))
     x = Conv1D(filters=16*con,kernel_size=ks,strides=1, padding='same')(inputs) 
     x = BatchNormalization()(x)
@@ -28,11 +28,7 @@ def get_encoder(frame_size,ftr,mlp_s,origin):
     return tf.keras.Model(inputs, outputs, name="encoder")
     
 
-def get_predictor(mlp_s, pred_config_num, origin):
-
-    pred_list = [predTian_1, predTian_2, predTian_3, predTian_4]
-    
-    predTian = pred_list[pred_config_num]
+def get_predictor(mlp_s, origin):
     
     inputs = layers.Input((mlp_s//4,))
     
