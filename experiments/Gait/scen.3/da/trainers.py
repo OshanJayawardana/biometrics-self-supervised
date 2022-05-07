@@ -19,7 +19,7 @@ def trainer(samples_per_user):
   AUTO = tf.data.AUTOTUNE
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/gait_dataset/idnet/"
   
-  users_2 = list(range(19,51)) #Users for dataset 2
+  users_2 = list(range(17,51)) #Users for dataset 2
   users_1 = list(range(1,17)) #Users for dataset 1
   
   x_train, y_train, x_val, y_val, x_test, y_test, sessions = data_loader_gait(path, classes=users_2, frame_size=frame_size)
