@@ -10,6 +10,7 @@ from data_loader import *
 from trunks import *
 
 def pre_trainer(config_num):
+  EPOCHS = 30 #30
   frame_size   = 128
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/gait_dataset/idnet/"
   
@@ -97,30 +98,9 @@ def pre_trainer(config_num):
   if len(transformations)==1:
     history=model.fit(x_train[i], y_train[i], epochs=30, shuffle=True)
   else:
-    history=model.fit(x_, y_, epochs=30, shuffle=True, callbacks=[Logger()], verbose=False)
+    history=model.fit(x_, y_, epochs=EPOCHS, shuffle=True, callbacks=[Logger()], verbose=False)
   
   fet_extrct=model.layers[len(transformations)]
   
-  x_train, y_train, sessions = data_loader_gait_pre(path, classes=users_1, frame_size=frame_size)
-  x_train = norma_pre(x_train)
-  enc_results = fet_extrct(x_train)
-  enc_results = np.array(enc_results)
-  X_embedded = TSNE(n_components=2).fit_transform(enc_results)
-  fig4 = plt.figure(figsize=(18,12))
-  plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.title('scen_1_'+str(config_num+1))
-  plt.savefig('graphs/latentspace_scen_1_'+str(config_num+1)+'.png')
-  plt.close(fig4)
-  
-  x_train, y_train, sessions = data_loader_gait_pre(path, classes=users_2, frame_size=frame_size)
-  x_train = norma_pre(x_train)
-  enc_results = fet_extrct(x_train)
-  enc_results = np.array(enc_results)
-  X_embedded = TSNE(n_components=2).fit_transform(enc_results)
-  fig4 = plt.figure(figsize=(18,12))
-  plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.title('scen_3_'+str(config_num+1))
-  plt.savefig('graphs/latentspace_scen_3_'+str(config_num+1)+'.png')
-  plt.close(fig4)
   
   return fet_extrct

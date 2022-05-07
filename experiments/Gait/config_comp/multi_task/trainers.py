@@ -8,7 +8,7 @@ from backbones import *
 from data_loader import *
 
 def trainer(samples_per_user, fet_extrct, scen, ft):
-  
+  EPOCHS = 100 #100
   ft_dict = {0:17, 1:12, 2:11, 3:8, 4:5, 5:0}
   ft = ft_dict[ft]
   
@@ -61,7 +61,7 @@ def trainer(samples_per_user, fet_extrct, scen, ft):
   optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
   #optimizer = tf.keras.optimizers.Adam()
   resnettssd.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'] )
-  history = resnettssd.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=100, callbacks=callback, batch_size=8)
+  history = resnettssd.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=EPOCHS, callbacks=callback, batch_size=8)
   
   results = resnettssd.evaluate(x_test,y_test)
   test_acc = results[1]

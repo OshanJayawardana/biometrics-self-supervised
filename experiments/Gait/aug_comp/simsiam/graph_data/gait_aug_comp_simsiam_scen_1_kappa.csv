@@ -1,0 +1,50 @@
+augmentation_couple,augmentation_1,augmentation_2,iter_0,average
+Noise_Noise,Noise,Noise,0.6744905710220337,0.6744905710220337
+Noise_Scaling,Noise,Scaling,0.4462016224861145,0.4462016224861145
+Noise_Magnitude Warp,Noise,Magnitude Warp,0.5437073707580566,0.5437073707580566
+Noise_Random Sampling,Noise,Random Sampling,0.4413759708404541,0.4413759708404541
+Noise_Flip,Noise,Flip,0.36943089962005615,0.36943089962005615
+Noise_Drop,Noise,Drop,0.5673093795776367,0.5673093795776367
+Noise_Noise+Scaling,Noise,Noise+Scaling,0.4569035768508911,0.4569035768508911
+Scaling_Noise,Scaling,Noise,0.4470958709716797,0.4470958709716797
+Scaling_Scaling,Scaling,Scaling,0.40621334314346313,0.40621334314346313
+Scaling_Magnitude Warp,Scaling,Magnitude Warp,0.5136911273002625,0.5136911273002625
+Scaling_Random Sampling,Scaling,Random Sampling,0.45113325119018555,0.45113325119018555
+Scaling_Flip,Scaling,Flip,0.5542932152748108,0.5542932152748108
+Scaling_Drop,Scaling,Drop,0.5527797937393188,0.5527797937393188
+Scaling_Noise+Scaling,Scaling,Noise+Scaling,0.437841534614563,0.437841534614563
+Magnitude Warp_Noise,Magnitude Warp,Noise,0.340520977973938,0.340520977973938
+Magnitude Warp_Scaling,Magnitude Warp,Scaling,0.544395923614502,0.544395923614502
+Magnitude Warp_Magnitude Warp,Magnitude Warp,Magnitude Warp,0.4665839672088623,0.4665839672088623
+Magnitude Warp_Random Sampling,Magnitude Warp,Random Sampling,0.5658870935440063,0.5658870935440063
+Magnitude Warp_Flip,Magnitude Warp,Flip,0.5379359126091003,0.5379359126091003
+Magnitude Warp_Drop,Magnitude Warp,Drop,0.338779091835022,0.338779091835022
+Magnitude Warp_Noise+Scaling,Magnitude Warp,Noise+Scaling,0.5608232021331787,0.5608232021331787
+Random Sampling_Noise,Random Sampling,Noise,0.45427173376083374,0.45427173376083374
+Random Sampling_Scaling,Random Sampling,Scaling,0.2976919412612915,0.2976919412612915
+Random Sampling_Magnitude Warp,Random Sampling,Magnitude Warp,0.32265567779541016,0.32265567779541016
+Random Sampling_Random Sampling,Random Sampling,Random Sampling,0.3026169538497925,0.3026169538497925
+Random Sampling_Flip,Random Sampling,Flip,0.5563114285469055,0.5563114285469055
+Random Sampling_Drop,Random Sampling,Drop,0.4762266278266907,0.4762266278266907
+Random Sampling_Noise+Scaling,Random Sampling,Noise+Scaling,0.5426916480064392,0.5426916480064392
+Flip_Noise,Flip,Noise,0.43221044540405273,0.43221044540405273
+Flip_Scaling,Flip,Scaling,0.3500203490257263,0.3500203490257263
+Flip_Magnitude Warp,Flip,Magnitude Warp,0.5509424209594727,0.5509424209594727
+Flip_Random Sampling,Flip,Random Sampling,0.4778202772140503,0.4778202772140503
+Flip_Flip,Flip,Flip,0.3925301432609558,0.3925301432609558
+Flip_Drop,Flip,Drop,0.5767598748207092,0.5767598748207092
+Flip_Noise+Scaling,Flip,Noise+Scaling,0.6205199956893921,0.6205199956893921
+Drop_Noise,Drop,Noise,0.5337958335876465,0.5337958335876465
+Drop_Scaling,Drop,Scaling,0.4605218172073364,0.4605218172073364
+Drop_Magnitude Warp,Drop,Magnitude Warp,0.49071401357650757,0.49071401357650757
+Drop_Random Sampling,Drop,Random Sampling,0.4989544749259949,0.4989544749259949
+Drop_Flip,Drop,Flip,0.5259459018707275,0.5259459018707275
+Drop_Drop,Drop,Drop,0.5632025003433228,0.5632025003433228
+Drop_Noise+Scaling,Drop,Noise+Scaling,0.5412060022354126,0.5412060022354126
+Noise+Scaling_Noise,Noise+Scaling,Noise,0.315668523311615,0.315668523311615
+Noise+Scaling_Scaling,Noise+Scaling,Scaling,0.5547229051589966,0.5547229051589966
+Noise+Scaling_Magnitude Warp,Noise+Scaling,Magnitude Warp,0.3927329182624817,0.3927329182624817
+Noise+Scaling_Random Sampling,Noise+Scaling,Random Sampling,0.4013817310333252,0.4013817310333252
+Noise+Scaling_Flip,Noise+Scaling,Flip,0.5890836119651794,0.5890836119651794
+Noise+Scaling_Drop,Noise+Scaling,Drop,0.37698793411254883,0.37698793411254883
+Noise+Scaling_Noise+Scaling,Noise+Scaling,Noise+Scaling,0.5471431016921997,0.5471431016921997

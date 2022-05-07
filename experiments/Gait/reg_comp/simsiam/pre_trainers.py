@@ -22,7 +22,7 @@ def pre_trainer(reg_con):
   config_num = 2
   BATCH_SIZE = 40
   origin = False
-  EPOCHS = 100
+  EPOCHS = 100 #100
   frame_size   = 128
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/gait_dataset/idnet/"
   
@@ -112,27 +112,5 @@ def pre_trainer(reg_con):
   backbone = backbone.layers[1]
   
   backbone.summary()
-  
-  x_train, y_train, sessions = data_loader_gait_pre(path, classes=users_1, frame_size=frame_size)
-  x_train = norma_pre(x_train)
-  enc_results = backbone(x_train)
-  enc_results = np.array(enc_results)
-  X_embedded = TSNE(n_components=2).fit_transform(enc_results)
-  fig4 = plt.figure(figsize=(18,12))
-  plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.title('scen_1_'+str(reg_con))
-  plt.savefig('graphs/latentspace_scen_1_'+str(reg_con)+'.png')
-  plt.close(fig4)
-  
-  x_train, y_train, sessions = data_loader_gait_pre(path, classes=users_2, frame_size=frame_size)
-  x_train = norma_pre(x_train)
-  enc_results = backbone(x_train)
-  enc_results = np.array(enc_results)
-  X_embedded = TSNE(n_components=2).fit_transform(enc_results)
-  fig4 = plt.figure(figsize=(18,12))
-  plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.title('scen_1_'+str(reg_con))
-  plt.savefig('graphs/latentspace_scen_3_'+str(reg_con)+'.png')
-  plt.close(fig4)
   
   return backbone

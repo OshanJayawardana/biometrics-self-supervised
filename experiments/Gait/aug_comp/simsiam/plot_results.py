@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd 
 from transformations import *
 
-iters = 10
+iters = 10 #10
 
 transformation_list=[[DA_Jitter],
                     [DA_Scaling],

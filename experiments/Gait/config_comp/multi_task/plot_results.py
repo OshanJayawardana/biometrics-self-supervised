@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd 
 
-iters = 10
+iters = 10 #10
 property = "configuration"
 
 model_name="gait_config_comp_multi task"

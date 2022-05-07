@@ -9,7 +9,7 @@ from data_loader import *
 def pre_trainer(transformations1, transformations2):
   BATCH_SIZE = 40
   origin = False
-  EPOCHS = 100
+  EPOCHS = 50 #100
   
   frame_size   = 128
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/gait_dataset/idnet/"

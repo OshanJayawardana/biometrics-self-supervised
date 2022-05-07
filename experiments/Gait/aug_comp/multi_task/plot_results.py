@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd 
 
-iters = 10
+iters = 10 #10
 
 transformation_list=[np.array([DA_Jitter]),
                     np.array([DA_Scaling]),
