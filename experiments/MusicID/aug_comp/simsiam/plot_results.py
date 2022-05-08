@@ -13,12 +13,18 @@ transformation_list=[[DA_Jitter],
                     [DA_RandSampling],
                     [DA_Flip],
                     [DA_Drop],
-                    [DA_Jitter, DA_Scaling]]
+                    [DA_TimeWarp],
+                    [DA_Permutation],
+                    [DA_Negation],
+                    [DA_ChannelShuffle],
+                    [DA_Jitter, DA_Scaling],
+                    [DA_MagWarp, DA_Jitter],
+                    [DA_Scaling, DA_Flip]]
 
 #transformation_list=[[DA_Jitter],
 #                    [DA_Scaling]]                    
 
-name_list=["Noise", "Scaling", "Magnitude Warp", "Random Sampling", "Flip", "Drop", "Noise+Scaling"]
+name_list=["Noise", "Scaling", "Magnitude Warp", "Random Sampling", "Flip", "Drop", "Time Warp", "Permutation", "Negation", "Channel_Shuffle", "Noise+Scaling", "Mag_warp+Noise", "scaling+flip"]
 #name_list=["Noise", "Scaling"]
 
 model_name="musicid_aug_comp_simsiam"

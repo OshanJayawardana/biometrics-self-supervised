@@ -19,12 +19,12 @@ def pre_trainer(transformations1, transformations2):
   frame_size   = 30
   BATCH_SIZE = 40
   origin = False
-  EPOCHS = 100
+  EPOCHS = 30
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
   users_2 = list(range(7,21)) #Users for dataset 2
   users_1 = users = list(range(1,7)) #Users for dataset 1
-  folder_train = ["TrainingSet","TestingSet_secret", "TestingSet"]
+  folder_train = ["TrainingSet"]
   
   x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
   print("training samples : ", x_train.shape[0])
@@ -78,8 +78,6 @@ def pre_trainer(transformations1, transformations2):
   ssl_ds = tf.data.Dataset.zip((ssl_ds_one, ssl_ds_two))
   
   mlp_s=2048
-  con = 3
-  ks = 3
   num_training_samples = len(x_train)
   steps = EPOCHS * (num_training_samples // BATCH_SIZE)
   lr_decayed_fn = tf.keras.experimental.CosineDecay(
@@ -88,7 +86,7 @@ def pre_trainer(transformations1, transformations2):
   
   # Create an early stopping callback.
   early_stopping = tf.keras.callbacks.EarlyStopping(
-      monitor="loss", patience=5, restore_best_weights=True, min_delta=0.0001
+      monitor="loss", patience=5, restore_best_weights=True, min_delta=0.001
   )
   
   # Compile model and start training.
