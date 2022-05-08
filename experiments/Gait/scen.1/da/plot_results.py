@@ -1,4 +1,4 @@
-from trainers import *
+ pfrom trainers import *
 import numpy as np
 import matplotlib.pyplot as plt
 

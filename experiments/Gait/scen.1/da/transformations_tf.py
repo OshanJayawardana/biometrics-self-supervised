@@ -92,7 +92,7 @@ def tf_drop(input):
   y = tf.numpy_function(drop_numpy, [input], tf.float64)
   return y
   
-def random_numpy(x):
+def scale_noise_numpy(x):
   # x will be a numpy array with the contents of the input to the
   # tf.function
   #augs = [DA_Jitter, DA_Flip, DA_Scaling, DA_MagWarp, DA_Drop]
@@ -100,8 +100,9 @@ def random_numpy(x):
   #np.random.shuffle(indx)
   #aug = augs[indx[0]]
   x = DA_Scaling(x)
+  x = DA_Jitter(x)
   return x
 @tf.function(input_signature=[tf.TensorSpec(None, tf.float64)])
-def tf_random(input):
-  y = tf.numpy_function(random_numpy, [input], tf.float64)
+def tf_scale_noise(input):
+  y = tf.numpy_function(scale_noise_numpy, [input], tf.float64)
   return y
