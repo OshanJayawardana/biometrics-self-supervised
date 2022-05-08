@@ -20,8 +20,8 @@ for pred_config_num in range(4):
   kappa_temp_1=[]
   acc_temp_3=[]
   kappa_temp_3=[]
-  fet_extrct = pre_trainer(pred_config_num)
   for itr in range(iters):
+    fet_extrct = pre_trainer(pred_config_num)
     test_acc_1, kappa_score_1 = trainer(60, fet_extrct,scen=1, ft=0)
     test_acc_3, kappa_score_3 = trainer(60, fet_extrct,scen=3, ft=0)
     acc_temp_1.append(test_acc_1)

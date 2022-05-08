@@ -53,7 +53,7 @@ def trainer(samples_per_user):
   #ssl_ds_one = tf.data.Dataset.from_tensor_slices(x_train)
   ds_x = (
       ds_x.shuffle(1024, seed=SEED)
-      .map(tf_magwarp, num_parallel_calls=AUTO)
+      .map(tf_scale, num_parallel_calls=AUTO)
       .batch(BATCH_SIZE)
       .prefetch(AUTO)
   )

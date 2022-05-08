@@ -24,7 +24,7 @@ def pre_trainer(fet=6):
   
   users_2 = list(range(7,21)) #Users for dataset 2
   users_1 = users = list(range(1,7)) #Users for dataset 1
-  folder_train = ["TrainingSet"]
+  folder_train = ["TrainingSet","TestingSet_secret", "TestingSet"]
   
   x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
   print("training samples : ", x_train.shape[0])

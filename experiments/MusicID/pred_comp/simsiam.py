@@ -10,20 +10,19 @@ from tensorflow.keras import layers
 from tensorflow.keras import regularizers
 from tensorflow.keras.optimizers import schedules
 from tensorflow.keras.layers import Flatten
+from trunks import *
 
-def get_encoder(frame_size,ftr,mlp_s,origin):
+def get_encoder(frame_size,ftr,mlp_s, config_num, reg_con, origin):
     # Input and backbone.
-    ks = 3
-    con = 1
     inputs = layers.Input((frame_size,ftr))
-    x = Conv1D(filters=16*con,kernel_size=ks,strides=1, padding='same')(inputs) 
-    x = BatchNormalization()(x)
-    x = ReLU()(x)
-    x = MaxPooling1D(pool_size=4, strides=4)(x)
-    x = Dropout(rate=0.1)(x)
-    x = resnetblock_final(x, CR=32*con, KS=ks)
     
-    outputs = proTian(x,mlp_s=mlp_s)
+    trunk_lst = [trunk_1, trunk_2, trunk_3, trunk_4, trunk_5, trunk_6]
+    trunk=trunk_lst[config_num]
+    trunk=trunk(frame_size, ft_len=ftr, reg_con=reg_con)
+    
+    x = trunk(inputs)
+    
+    outputs = proTian(x, reg_con=reg_con, mlp_s=mlp_s)
     
     return tf.keras.Model(inputs, outputs, name="encoder")
     

@@ -10,20 +10,29 @@ from data_loader import *
 
 def pre_trainer(transformations, sigma_l, name_aug):
   frame_size   = 30
+  EPOCHS = 50
+  BATCH_SIZE = 32
+  
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
   users_2 = list(range(7,21)) #Users for dataset 2
   users_1 = list(range(1,7)) #Users for dataset 1
-  folder_train = ["TrainingSet","TestingSet_secret", "TestingSet"]
+  folder_train = ["TrainingSet"]
   
   x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
   print("training samples : ", x_train.shape[0])
   
   x_train = norma_pre(x_train)
   print("x_train", x_train.shape)
+      
+  lr_decayed_fn = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate = 0.00003, decay_rate=0.95, decay_steps=1000)# 0.0001, 0.9, 100000
+  
+  opt=tf.keras.optimizers.Adam(lr_decayed_fn)
   
   #sigma_l=np.array([0.2, None])
   x_train, y_train = aug_data(x_train, y_train, transformations, sigma_l, ext=False)
+  
+  # Create an early stopping callback.
   
   con=3
   ks=3
@@ -71,7 +80,7 @@ def pre_trainer(transformations, sigma_l, name_aug):
     loss_weights.append(1/len(transformations))
   #loss_weights=[1,0.1,0.1,0.1,1,1,0.1]
   
-  opt = tf.keras.optimizers.Adam(learning_rate=0.0001)
+  #opt = tf.keras.optimizers.Adam(learning_rate=0.0001)
   model.compile(
       loss=loss,
       loss_weights=loss_weights,
@@ -100,12 +109,13 @@ def pre_trainer(transformations, sigma_l, name_aug):
       y_.append(y_train[i])
   
   if len(transformations)==1:
-    history=model.fit(x_train[i], y_train[i], epochs=30, shuffle=True)
+    history=model.fit(x_train[i], y_train[i], epochs=EPOCHS, shuffle=True, batch_size=BATCH_SIZE)
   else:
-    history=model.fit(x_, y_, epochs=30, shuffle=True, callbacks=[Logger()], verbose=False)
+    history=model.fit(x_, y_, epochs=EPOCHS, shuffle=True, callbacks=[Logger()], verbose=False, batch_size=BATCH_SIZE)
   
   fet_extrct=model.layers[len(transformations)]
   
+  folder_train = ["TrainingSet","TestingSet_secret", "TestingSet"]
   x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
   x_train = norma_pre(x_train)
   enc_results = fet_extrct(x_train)
