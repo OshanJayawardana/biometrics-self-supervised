@@ -6,3 +6,5 @@ gait_dataset/*
 **/models/*
 **/UCI HAR/*
 **/data/*
+**/graphs/*
+**/graph_data/*
