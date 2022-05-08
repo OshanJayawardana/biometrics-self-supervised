@@ -1,38 +1,23 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
 import tensorflow as tf
 import tensorflow_addons as tfa
 from tensorflow.keras import Input, Model
 from tensorflow.keras.layers import Dense, Flatten
-from tensorflow.keras import layers
-from sklearn.manifold import TSNE
-from sklearn.metrics import roc_curve
 
 from backbones import *
 from data_loader import *
 from transformations_tf import *
 
 def trainer(samples_per_user):
-  frame_size   = 30
-  BATCH_SIZE = 8
+  frame_size   = 128
+  BATCH_SIZE = 32
   AUTO = tf.data.AUTOTUNE
-  path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
+  path = "/home/oshanjayawardanav100/biometrics-self-supervised/gait_dataset/idnet/"
   
-  users_2 = list(range(9,21)) #Users for dataset 1
-  users_1 = users = list(range(1,7)) #Users for dataset 2
-  folder_train = ["TrainingSet"]
-  folder_val = ["TestingSet"]
-  folder_test = ["TestingSet_secret"]
+  users_2 = [14, 15, 16, 17, 20, 21, 22, 23, 32, 36, 37, 38, 39, 41, 43, 44, 45, 46, 47, 48, 49, 50] #Users for dataset 2
+  users_1 = [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] #Users for dataset 1
   
-  x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
-  print("training samples : ", x_train.shape[0])
-  
-  x_val, y_val, sessions_val = data_load_origin(path, users=users_2, folders=folder_val, frame_size=30)
-  print("validation samples : ", x_val.shape[0])
-  
-  x_test, y_test, sessions_test = data_load_origin(path, users=users_2, folders=folder_test, frame_size=30)
-  print("testing samples : ", x_test.shape[0])
+  x_train, y_train, x_val, y_val, x_test, y_test, sessions = data_loader_gait(path, classes=users_2, frame_size=frame_size)
   
   classes, counts  = np.unique(y_train, return_counts=True)
   num_classes = len(classes)
@@ -53,7 +38,7 @@ def trainer(samples_per_user):
   #ssl_ds_one = tf.data.Dataset.from_tensor_slices(x_train)
   ds_x = (
       ds_x.shuffle(1024, seed=SEED)
-      .map(tf_scale, num_parallel_calls=AUTO)
+      .map(tf_scale_noise, num_parallel_calls=AUTO)
       .batch(BATCH_SIZE)
       .prefetch(AUTO)
   )
@@ -70,7 +55,7 @@ def trainer(samples_per_user):
   val_ds = val_ds.batch(BATCH_SIZE).prefetch(AUTO)
   
   ks = 3
-  con =3
+  con =1
   inputs = Input(shape=(frame_size, x_train.shape[-1]))
   x = Conv1D(filters=16*con,kernel_size=ks,strides=1, padding='same')(inputs) 
   x = BatchNormalization()(x)
@@ -86,7 +71,7 @@ def trainer(samples_per_user):
   #resnettssd.summary()
   
   callback = tf.keras.callbacks.EarlyStopping(monitor='val_accuracy', restore_best_weights=True, patience=5)
-  lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate = 0.001, decay_rate=0.95, decay_steps=1000)# 0.0001, 0.9, 100000
+  lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate = 0.001, decay_rate=0.95, decay_steps=10000)# 0.0001, 0.9, 100000
   optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
   #optimizer = tf.keras.optimizers.Adam()
   resnettssd.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'] )
