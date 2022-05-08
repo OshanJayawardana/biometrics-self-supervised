@@ -144,24 +144,21 @@ def data_loader_gait(path, classes, frame_size=128):
     x_test=np.array([])
     y_test=[]
     sessions=[]
-    samples=[]
     for user_id, user in enumerate(classes):
         sess_count=0
-        temp_samples=0
         for session_id in range(1,2):
             try:
-                foldername = "u"+str(user).rjust(3, '0')+"_w"+str(session_id).rjust(3, '0')
+                if user==40:
+                  foldername = "u"+str(user).rjust(3, '0')+"_w"+str(2).rjust(3, '0')
+                else:
+                  foldername = "u"+str(user).rjust(3, '0')+"_w"+str(session_id).rjust(3, '0')
                 filename_acc = os.path.join(path,foldername,foldername+"_accelerometer.log")
                 data_acc = pd.read_csv(filename_acc, header=0, sep="\t")
                 acc_x, acc_y, acc_z = np.array(data_acc.accelerometer_x_data), np.array(data_acc.accelerometer_y_data), np.array(data_acc.accelerometer_z_data)
                 data = [acc_x, acc_y, acc_z, np.sqrt(acc_x*acc_x + acc_y*acc_y + acc_z*acc_z)]
-                min_ln = min([data[i].shape[0] for i in range(len(data))])
-                data = [data[i][:min_ln] for i in range(len(data))]
+                min_ln = min([data[i].shape[0] for i in range(4)])
+                data = [data[i][:min_ln] for i in range(4)]
                 data = np.array(data).T
-                
-                #filename = "u"+str(user).rjust(3, '0')+"_w"+str(session_id).rjust(3, '0')+"_data_user_coord.csv"
-                #data = pd.read_csv(os.path.join(path,filename))
-                #data = np.array(data)
 
                 data_train = data[:int(data.shape[0]*0.7)]
                 data_val = data[int(data.shape[0]*0.7):int(data.shape[0]*0.85)]
@@ -194,13 +191,9 @@ def data_loader_gait(path, classes, frame_size=128):
                     x_test = np.concatenate((x_test,data_test), axis=0)
                     y_test += [user_id]*data_test.shape[0]
                 sess_count+=1
-                temp_samples=data_train.shape[0]
             except FileNotFoundError:
                 continue
-        samples.append(temp_samples)
         sessions.append(sess_count)
-        
-    print(samples)
     indx = np.arange(len(y_train))
     y_train = np.array(y_train)
     y_val = np.array(y_val)

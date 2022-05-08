@@ -1,13 +1,4 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
 import tensorflow as tf
-from tensorflow.keras import Input, Model
-from tensorflow.keras.layers import Dense, Flatten
-from tensorflow.keras import layers
-from sklearn.manifold import TSNE
-from tensorflow.keras.models import Sequential
-from tensorflow.keras import regularizers
 from projectors import *
 from predictors import *
 from simsiam import *
@@ -15,18 +6,17 @@ from simsiam import *
 from backbones import *
 from data_loader import *
 
-def pre_trainer(scen, fet):
-  frame_size   = 30
+def pre_trainer(fet=6):
   BATCH_SIZE = 40
   origin = False
   EPOCHS = 100
-  path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
+  frame_size   = 128
+  path = "/home/oshanjayawardanav100/biometrics-self-supervised/gait_dataset/idnet/"
   
-  users_2 = list(range(9,21)) #Users for dataset 2
-  users_1 = users = list(range(1,7)) #Users for dataset 1
-  folder_train = ["TrainingSet","TestingSet_secret", "TestingSet"]
+  users_2 = list(range(17,51)) #Users for dataset 2
+  users_1 = list(range(1,17)) #Users for dataset 1
   
-  x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
+  x_train, y_train, x_val, y_val, x_test, y_test, sessions = data_loader_gait(path, classes=users_1, frame_size=frame_size)
   print("training samples : ", x_train.shape[0])
   num_sample=x_train.shape[0]
   
@@ -76,8 +66,6 @@ def pre_trainer(scen, fet):
   ssl_ds = tf.data.Dataset.zip((ssl_ds_one, ssl_ds_two))
   
   mlp_s=2048
-  con = 3
-  ks = 3
   num_training_samples = len(x_train)
   steps = EPOCHS * (num_training_samples // BATCH_SIZE)
   lr_decayed_fn = tf.keras.experimental.CosineDecay(
@@ -109,18 +97,5 @@ def pre_trainer(scen, fet):
   backbone = tf.keras.Model(backbone.input, backbone.layers[-fet].output)
   
   backbone.summary()
-  
-  if scen==3:
-    x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
-  elif scen==1:
-    x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
-    
-  enc_results = backbone(x_train)
-  enc_results = np.array(enc_results)
-  X_embedded = TSNE(n_components=2).fit_transform(enc_results)
-  fig4 = plt.figure(figsize=(18,12))
-  plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.savefig('graphs/latentspace_scen_'+str(scen)+'_fet_'+str(fet)+'.png')
-  plt.close(fig4)
   
   return backbone

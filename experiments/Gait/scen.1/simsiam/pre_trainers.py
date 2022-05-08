@@ -1,123 +1,113 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
 import tensorflow as tf
-import tensorflow_addons as tfa
-from tensorflow.keras import Input, Model
-from tensorflow.keras.layers import Dense, Flatten
-from tensorflow.keras import layers
 from sklearn.manifold import TSNE
-from sklearn.metrics import roc_curve
+from projectors import *
+from predictors import *
+from simsiam import *
 
 from backbones import *
 from data_loader import *
 
-def pre_trainer(scen):
-  frame_size   = 30
-  path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
+def pre_trainer(scen, fet):
+  BATCH_SIZE = 40
+  origin = False
+  EPOCHS = 100
+  frame_size   = 128
+  path = "/home/oshanjayawardanav100/biometrics-self-supervised/gait_dataset/idnet/"
   
-  users_2 = list(range(9,21)) #Users for dataset 2
-  users_1 = list(range(1,7)) #Users for dataset 1
-  folder_train = ["TrainingSet","TestingSet_secret", "TestingSet"]
+  users_2 = list(range(17,51)) #Users for dataset 2
+  users_1 = list(range(1,17)) #Users for dataset 1
   
-  x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
-  print("training samples : ", x_train.shape[0])
+  x_train, y_train, x_val, y_val, x_test, y_test, sessions = data_loader_gait(path, classes=users_2, frame_size=frame_size)
   
   x_train = norma_pre(x_train)
   print("x_train", x_train.shape)
   
-  transformations=np.array([DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop])#, DA_TimeWarp, DA_Drop
-  #transformations=np.array([DA_Scaling, DA_Flip])
-  sigma_l=np.array([0.1, 0.2, 0.2, None, None, 3])#, 0.01, 3
-  #sigma_l=np.array([0.2, None])
-  x_train, y_train = aug_data(x_train, y_train, transformations, sigma_l, ext=False)
-  
-  con=3
-  ks=3
-  def trunk():
-    input_ = Input(shape=(frame_size,x_train.shape[-1]), name='input_')
-    x = Conv1D(filters=16*con,kernel_size=ks,strides=1, padding='same')(input_) 
-    x = BatchNormalization()(x)
-    x = ReLU()(x)
-    x = MaxPooling1D(pool_size=4, strides=4)(x)
-    x = Dropout(rate=0.1)(x)
-    x = resnetblock_final(x, CR=32*con, KS=ks)
-    return tf.keras.models.Model(input_,x,name='trunk_')
+  def aug1_numpy(x):
+    # x will be a numpy array with the contents of the input to the
+    # tf.function
+    x = DA_Jitter(x, 0.5)
+    return DA_Scaling(x, 1)
+  @tf.function(input_signature=[tf.TensorSpec(None, tf.float64)])
+  def tf_aug1(input):
+    y = tf.numpy_function(aug1_numpy, [input], tf.float64)
+    return y
     
-  inputs = []
-  for i in range(len(transformations)):
-    name = 'input_'+str(i+1)
-    inputs.append(Input(shape=(frame_size,x_train.shape[-1]), name=name))
+  def aug2_numpy(x):
+    # x will be a numpy array with the contents of the input to the
+    # tf.function
+    x = DA_Jitter(x, 0.5)
+    return DA_Scaling(x, 1)
+  @tf.function(input_signature=[tf.TensorSpec(None, tf.float64)])
+  def tf_aug2(input):
+    y = tf.numpy_function(aug2_numpy, [input], tf.float64)
+    return y
   
-  trunk=trunk()
-  trunk.summary()
-  
-  fets = []
-  for input_ in inputs:
-    fets.append(trunk(input_))
-  
-  heads = []
-  for i, fet in enumerate(fets):
-    dens_name = 'dens_'+str(i+1)
-    densi_name = 'densi_'+str(i+1)
-    head_name = 'head_'+str(i+1)
-    dens = Dense(256, activation='relu', name=dens_name)(fet)
-    dens = Dense(64, activation='relu', name=densi_name)(dens)
-    head = Dense(1, activation='sigmoid', name=head_name)(dens)
-    heads.append(head)
-  
-  model = tf.keras.models.Model(inputs, heads, name='multi-task_self-supervised')
-  
-  loss=[]
-  loss_weights=[]
-  for i in range(len(transformations)):
-    loss.append('binary_crossentropy')
-    loss_weights.append(1/len(transformations))
-  #loss_weights=[1,0.1,0.1,0.1,1,1,0.1]
-  
-  opt = tf.keras.optimizers.Adam(learning_rate=0.0001)
-  model.compile(
-      loss=loss,
-      loss_weights=loss_weights,
-      optimizer=opt,
-      metrics=['accuracy']
+  AUTO = tf.data.AUTOTUNE
+  SEED = 34
+  ssl_ds_one = tf.data.Dataset.from_tensor_slices(x_train)
+  #ssl_ds_one = tf.data.Dataset.from_tensor_slices(x_train)
+  ssl_ds_one = (
+      ssl_ds_one.shuffle(1024, seed=SEED)
+      .map(tf_aug1, num_parallel_calls=AUTO)
+      .batch(BATCH_SIZE)
+      .prefetch(AUTO)
   )
   
-  model.summary()
+  ssl_ds_two = tf.data.Dataset.from_tensor_slices(x_train)
+  ssl_ds_two = (
+      ssl_ds_two.shuffle(1024, seed=SEED)
+      .map(tf_aug2, num_parallel_calls=AUTO)
+      .batch(BATCH_SIZE)
+      .prefetch(AUTO)
+  )
   
-  class Logger(tf.keras.callbacks.Callback):
-      def on_epoch_end(self, epoch, logs=None):
-          acc=[]
-          val_acc=[]
-          for i in range(len(transformations)):
-              acc.append(logs.get('head_'+str(i+1)+'_accuracy'))
-              val_acc.append(logs.get('val_head_'+str(i+1)+'_accuracy'))
-          print('='*30,epoch+1,'='*30)
-          print('accuracy',acc)
-          #print("val_accuracy",val_acc)
+  # We then zip both of these datasets.
+  ssl_ds = tf.data.Dataset.zip((ssl_ds_one, ssl_ds_two))
   
-  callback = tf.keras.callbacks.EarlyStopping(monitor='loss', min_delta=0.1,patience=5,restore_best_weights=True )
-  x_=[]
-  y_=[]
-  for i in range(len(transformations)):
-      x_.append(x_train[i])
-      y_.append(y_train[i])
+  mlp_s=2048
+  num_training_samples = len(x_train)
+  steps = EPOCHS * (num_training_samples // BATCH_SIZE)
+  lr_decayed_fn = tf.keras.experimental.CosineDecay(
+      initial_learning_rate=5e-5, decay_steps=steps
+  )
   
-  history=model.fit(x_, y_, epochs=30, shuffle=True, callbacks=[Logger()], verbose=False)
+  # Create an early stopping callback.
+  early_stopping = tf.keras.callbacks.EarlyStopping(
+      monitor="loss", patience=5, restore_best_weights=True, min_delta=0.0001
+  )
   
-  fet_extrct=model.layers[len(transformations)]
+  # Compile model and start training.
+  #SGD(lr_decayed_fn, momentum=0.9)
   
-  if scen==3:
-    x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
-  elif scen==1:
-    x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
+  en = get_encoder(frame_size,x_train.shape[-1],mlp_s,origin)
+  en.summary()
+  
+  contrastive = Contrastive(get_encoder(frame_size,x_train.shape[-1],mlp_s,origin), get_predictor(mlp_s,origin))
+  contrastive.compile(optimizer=tf.keras.optimizers.Adam(lr_decayed_fn))
+  
+  history = contrastive.fit(ssl_ds, epochs=EPOCHS, callbacks=[early_stopping])
+  
+  backbone = tf.keras.Model(
+      contrastive.encoder.input, contrastive.encoder.output
+  )
+  
+  backbone.summary()
+  
+  backbone = tf.keras.Model(backbone.input, backbone.layers[-fet].output)
+  
+  backbone.summary()
+  
+  x_train, y_train, x_val, y_val, x_test, y_test, sessions = data_loader_gait(path, classes=users_2, frame_size=frame_size)
     
-  enc_results = fet_extrct(x_train)
+  x_train = norma_pre(x_train)
+  enc_results = backbone(x_train)
   enc_results = np.array(enc_results)
   X_embedded = TSNE(n_components=2).fit_transform(enc_results)
   fig4 = plt.figure(figsize=(18,12))
   plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.savefig('graphs/latentspace_scen_'+str(scen)+'.png')
+  plt.savefig('graphs/latentspace_scen_1.png')
   plt.close(fig4)
   
-  return fet_extrct
+  return backbone
