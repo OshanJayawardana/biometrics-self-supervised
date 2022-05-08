@@ -18,7 +18,7 @@ from transformations import *
 
 def pre_trainer(config_num):
   
-  transformations1, transformations2 = [DA_MagWarp, DA_Jitter], [DA_Scaling, DA_Flip]
+  transformations1, transformations2 = [DA_Scaling], [DA_Jitter]
   
   frame_size   = 30
   BATCH_SIZE = 40

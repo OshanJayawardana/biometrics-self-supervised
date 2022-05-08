@@ -10,6 +10,10 @@ from data_loader import *
 from trunks import *
 
 def pre_trainer(config_num):
+  
+  EPOCHS = 50
+  BATCH_SIZE = 32
+  
   frame_size   = 30
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
@@ -23,12 +27,13 @@ def pre_trainer(config_num):
   x_train = norma_pre(x_train)
   print("x_train", x_train.shape)
   
-  ################################################################################################################################
-  transformations = np.array([DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop])
-  sigma_l = np.array([0.1, 0.2, 0.2, None, None, 3])
+  #################################################### Augmentations ########################################################################
+  transformations = np.array([DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop, DA_TimeWarp, DA_Negation, DA_ChannelShuffle, DA_Permutation])
+  con = 2
+  sigma_l = np.array([0.1*con, 0.2*con, 0.2*con, None, None, 3, 0.2*con, None, None, 0.1*con])
   
   x_train, y_train = aug_data(x_train, y_train, transformations, sigma_l, ext=False)
-  
+  ###########################################################################################################################################
   
   trunk_lst = [trunk_1, trunk_2, trunk_3, trunk_4, trunk_5, trunk_6]
     
@@ -67,7 +72,8 @@ def pre_trainer(config_num):
     loss_weights.append(1/len(transformations))
   #loss_weights=[1,0.1,0.1,0.1,1,1,0.1]
   
-  opt = tf.keras.optimizers.Adam(learning_rate=0.0001)
+  lr_decayed_fn = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate = 0.00003, decay_rate=0.95, decay_steps=1000)# 0.0001, 0.9, 100000
+  opt = tf.keras.optimizers.Adam(lr_decayed_fn)
   model.compile(
       loss=loss,
       loss_weights=loss_weights,
@@ -96,32 +102,10 @@ def pre_trainer(config_num):
       y_.append(y_train[i])
   
   if len(transformations)==1:
-    history=model.fit(x_train[i], y_train[i], epochs=30, shuffle=True)
+    history=model.fit(x_train[i], y_train[i], epochs=EPOCHS, shuffle=True, batch_size=BATCH_SIZE)
   else:
-    history=model.fit(x_, y_, epochs=30, shuffle=True, callbacks=[Logger()], verbose=False)
+    history=model.fit(x_, y_, epochs=EPOCHS, shuffle=True, callbacks=[Logger()], verbose=False, batch_size=BATCH_SIZE)
   
   fet_extrct=model.layers[len(transformations)]
-  
-  x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
-  x_train = norma_pre(x_train)
-  enc_results = fet_extrct(x_train)
-  enc_results = np.array(enc_results)
-  X_embedded = TSNE(n_components=2).fit_transform(enc_results)
-  fig4 = plt.figure(figsize=(18,12))
-  plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.title('scen_1_'+str(config_num+1))
-  plt.savefig('graphs/latentspace_scen_1_'+str(config_num+1)+'.png')
-  plt.close(fig4)
-  
-  x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
-  x_train = norma_pre(x_train)
-  enc_results = fet_extrct(x_train)
-  enc_results = np.array(enc_results)
-  X_embedded = TSNE(n_components=2).fit_transform(enc_results)
-  fig4 = plt.figure(figsize=(18,12))
-  plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.title('scen_1_'+str(config_num+1))
-  plt.savefig('graphs/latentspace_scen_3_'+str(config_num+1)+'.png')
-  plt.close(fig4)
   
   return fet_extrct

@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd 
 
 iters = 10
+con = 2
 
 transformation_list=[np.array([DA_Jitter]),
                     np.array([DA_Scaling]),
@@ -25,21 +26,21 @@ transformation_list=[np.array([DA_Jitter]),
 #transformation_list=[np.array([DA_Jitter]),
 #                    np.array([DA_Scaling])]
 
-sigma_lst=[np.array([0.1]), #Noise
-          np.array([0.2]), #Scaling
-          np.array([0.2]), #Magnitude Warp
+sigma_lst=[np.array([0.1*con]), #Noise
+          np.array([0.2*con]), #Scaling
+          np.array([0.2*con]), #Magnitude Warp
           np.array([None]), #Random Sampling
           np.array([None]), #Flip
           np.array([3]), #Drop
-          np.array([0.2]), #TimeWarp
+          np.array([0.2*con]), #TimeWarp
           np.array([None]), #Negation
           np.array([None]), #Channel shuffle
-          np.array([0.1]), #Permutations
-          np.array([0.1,0.2]), #Noise,scale
-          np.array([0.2,3]), #Magnitude Warp, Drop
-          np.array([0.1,0.2,0.2,3]), #Noise,scale,Magnitude Warp, Drop
-          np.array([0.1, 0.2, 0.2, None, None, 3]), #all1 DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop
-          np.array([0.1, 0.2, 0.2, None, None, 3, 0.2, None, None, 0.1])] #all
+          np.array([0.1*con]), #Permutations
+          np.array([0.1*con,0.2*con]), #Noise,scale
+          np.array([0.2*con,3]), #Magnitude Warp, Drop
+          np.array([0.1*con,0.2*con,0.2*con,3]), #Noise,scale,Magnitude Warp, Drop
+          np.array([0.1*con, 0.2*con, 0.2*con, None, None, 3]), #all1 DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop
+          np.array([0.1*con, 0.2*con, 0.2*con, None, None, 3, 0.2*con, None, None, 0.1*con])] #all
 #sigma_lst=[np.array([0.1]),
 #          np.array([0.2])]
 
@@ -64,8 +65,8 @@ for transformations, sigma_l, name in zip(transformation_list, sigma_lst, name_l
   kappa_temp_1=[]
   acc_temp_3=[]
   kappa_temp_3=[]
-  fet_extrct = pre_trainer(transformations, sigma_l, name)
   for itr in range(iters):
+    fet_extrct = pre_trainer(transformations, sigma_l, name)
     test_acc_1, kappa_score_1 = trainer(60, fet_extrct,scen=1, ft=0)
     test_acc_3, kappa_score_3 = trainer(60, fet_extrct,scen=3, ft=0)
     acc_temp_1.append(test_acc_1)
