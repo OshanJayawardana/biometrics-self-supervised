@@ -16,15 +16,15 @@ from backbones import *
 from data_loader import *
 
 def pre_trainer(scen, fet):
-  frame_size   = 30
-  BATCH_SIZE = 40
+  frame_size = 30
+  BATCH_SIZE = 32
   origin = False
-  EPOCHS = 100
+  EPOCHS = 30
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
   users_2 = list(range(7,21)) #Users for dataset 2
   users_1 = list(range(1,7)) #Users for dataset 1
-  folder_train = ["TrainingSet","TestingSet_secret", "TestingSet"]
+  folder_train = ["TrainingSet"]
   
   x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
   print("training samples : ", x_train.shape[0])
@@ -36,8 +36,8 @@ def pre_trainer(scen, fet):
   def aug1_numpy(x):
     # x will be a numpy array with the contents of the input to the
     # tf.function
-    x = DA_Jitter(x, 0.5)
-    return DA_Scaling(x, 1)
+    x = DA_Scaling(x)
+    return x
   @tf.function(input_signature=[tf.TensorSpec(None, tf.float64)])
   def tf_aug1(input):
     y = tf.numpy_function(aug1_numpy, [input], tf.float64)
@@ -46,8 +46,8 @@ def pre_trainer(scen, fet):
   def aug2_numpy(x):
     # x will be a numpy array with the contents of the input to the
     # tf.function
-    x = DA_Jitter(x, 0.5)
-    return DA_Scaling(x, 1)
+    x = DA_Flip(x, 0.5)
+    return x
   @tf.function(input_signature=[tf.TensorSpec(None, tf.float64)])
   def tf_aug2(input):
     y = tf.numpy_function(aug2_numpy, [input], tf.float64)
@@ -76,27 +76,26 @@ def pre_trainer(scen, fet):
   ssl_ds = tf.data.Dataset.zip((ssl_ds_one, ssl_ds_two))
   
   mlp_s=2048
-  con = 3
-  ks = 3
   num_training_samples = len(x_train)
   steps = EPOCHS * (num_training_samples // BATCH_SIZE)
-  lr_decayed_fn = tf.keras.experimental.CosineDecay(
-      initial_learning_rate=5e-5, decay_steps=steps
-  )
+  #lr_decayed_fn = tf.keras.experimental.CosineDecay(
+  #    initial_learning_rate=5e-5, decay_steps=steps)
+  
+  lr_decayed_fn = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate = 0.00003, decay_rate=0.95, decay_steps=1000)# 0.0001, 0.9, 100000
+  opt = tf.keras.optimizers.Adam(lr_decayed_fn)
   
   # Create an early stopping callback.
   early_stopping = tf.keras.callbacks.EarlyStopping(
-      monitor="loss", patience=5, restore_best_weights=True, min_delta=0.0001
-  )
+      monitor="loss", patience=5, restore_best_weights=True, min_delta=0.01)
   
   # Compile model and start training.
-  #SGD(lr_decayed_fn, momentum=0.9)
   
   en = get_encoder(frame_size,x_train.shape[-1],mlp_s,origin)
   en.summary()
   
   contrastive = Contrastive(get_encoder(frame_size,x_train.shape[-1],mlp_s,origin), get_predictor(mlp_s,origin))
-  contrastive.compile(optimizer=tf.keras.optimizers.Adam(lr_decayed_fn))
+  #contrastive.compile(optimizer=tf.keras.optimizers.Adam(lr_decayed_fn))
+  contrastive.compile(optimizer=opt)
   
   history = contrastive.fit(ssl_ds, epochs=EPOCHS, callbacks=[early_stopping])
   

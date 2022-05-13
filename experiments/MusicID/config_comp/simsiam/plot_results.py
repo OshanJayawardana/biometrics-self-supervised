@@ -9,13 +9,19 @@ property = "configuration"
 
 model_name="musicid_config_comp_simsiam"
 
-name_list = ["16", "16, 32", "48, 96", "64, 128", "16, 32, 64", "48, 96, 192"]
+name_list = ["32",
+            "64",
+            "128",
+            "128, 256",
+            "128, 256, 512",
+            "128, 256, 512, 1024",
+            "128, 256, 512, 1024, 2048"]
 
 acc_1=[]
 acc_3=[]
 kappa_1=[]
 kappa_3=[]
-for config_num in range(6):
+for config_num in range(len(name_list)):
   acc_temp_1=[]
   kappa_temp_1=[]
   acc_temp_3=[]

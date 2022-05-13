@@ -14,7 +14,7 @@ from tensorflow.keras.layers import Flatten
 def get_encoder(frame_size,ftr,mlp_s,origin):
     # Input and backbone.
     ks = 3
-    con = 3
+    con = 8
     inputs = layers.Input((frame_size,ftr))
     x = Conv1D(filters=16*con,kernel_size=ks,strides=1, padding='same')(inputs) 
     x = BatchNormalization()(x)

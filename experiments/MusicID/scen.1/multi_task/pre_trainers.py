@@ -13,12 +13,16 @@ from backbones import *
 from data_loader import *
 
 def pre_trainer(scen):
+
+  EPOCHS = 30
+  BATCH_SIZE = 32
+  
   frame_size   = 30
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
   users_2 = list(range(7,21)) #Users for dataset 2
   users_1 = list(range(1,7)) #Users for dataset 1
-  folder_train = ["TrainingSet","TestingSet_secret", "TestingSet"]
+  folder_train = ["TrainingSet"]
   
   x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
   print("training samples : ", x_train.shape[0])
@@ -26,13 +30,13 @@ def pre_trainer(scen):
   x_train = norma_pre(x_train)
   print("x_train", x_train.shape)
   
-  transformations=np.array([DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop])#, DA_TimeWarp, DA_Drop
-  #transformations=np.array([DA_Scaling, DA_Flip])
-  sigma_l=np.array([0.1, 0.2, 0.2, None, None, 3])#, 0.01, 3
-  #sigma_l=np.array([0.2, None])
+  transformations=np.array([DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop, DA_TimeWarp, DA_Negation, DA_ChannelShuffle, DA_Permutation])
+  con = 2
+  sigma_l=np.array([0.1*con, 0.2*con, 0.2*con, None, None, 3, 0.2*con, None, None, 0.1*con])
+  
   x_train, y_train = aug_data(x_train, y_train, transformations, sigma_l, ext=False)
   
-  con=3
+  con=8
   ks=3
   def trunk():
     input_ = Input(shape=(frame_size,x_train.shape[-1]), name='input_')
@@ -75,7 +79,8 @@ def pre_trainer(scen):
     loss_weights.append(1/len(transformations))
   #loss_weights=[1,0.1,0.1,0.1,1,1,0.1]
   
-  opt = tf.keras.optimizers.Adam(learning_rate=0.0001)
+  lr_decayed_fn = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate = 0.00003, decay_rate=0.95, decay_steps=1000)# 0.0001, 0.9, 100000
+  opt = tf.keras.optimizers.Adam(lr_decayed_fn)
   model.compile(
       loss=loss,
       loss_weights=loss_weights,
@@ -103,7 +108,7 @@ def pre_trainer(scen):
       x_.append(x_train[i])
       y_.append(y_train[i])
   
-  history=model.fit(x_, y_, epochs=30, shuffle=True, callbacks=[Logger()], verbose=False)
+  history=model.fit(x_, y_, epochs=EPOCHS, shuffle=True, callbacks=[Logger()], verbose=False, batch_size=BATCH_SIZE)
   
   fet_extrct=model.layers[len(transformations)]
   

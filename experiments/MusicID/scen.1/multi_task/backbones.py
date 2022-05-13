@@ -34,7 +34,7 @@ def resnetblock_final(inputs, KS, CR, skip=True):
     sum_ = Conv1D(filters=CR ,kernel_size=KS, strides=1, padding='same',kernel_regularizer=regularizers.L2(0.01))(conv2)
 
     if skip:
-        conv4 = Conv1D(filters=CR ,kernel_size=1, strides=1, padding='same',kernel_regularizer=regularizers.L2(0.01))(inputs)
+        conv4 = Conv1D(filters=CR ,kernel_size=1, strides=1, padding='same')(inputs)
         sum_ = Add()([sum_, conv4])
 
     sum_ = BatchNormalization()(sum_)

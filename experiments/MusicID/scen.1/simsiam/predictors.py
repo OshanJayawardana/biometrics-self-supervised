@@ -10,11 +10,11 @@ def predexp(inputs, mlp_s=2048):
     
     return outputs
     
-def predTian(inputs, mlp_s=256):
+def predTian(x, mlp_s=256):
     #x = GaussianNoise(stddev=0.01)(inputs)
-    x = Dense(mlp_s*4)(inputs)
-    x = BatchNormalization()(x)
-    x = ReLU()(x)
+    #x = Dense(mlp_s*4)(inputs)
+    #x = BatchNormalization()(x)
+    #x = ReLU()(x)
     #x = Dropout(0.35)(x)  
     x = Dense(mlp_s*2)(x)
     x = BatchNormalization()(x)

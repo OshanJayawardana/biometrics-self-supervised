@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from tensorflow.keras import Input
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dense, Flatten
 from sklearn.manifold import TSNE
 
 from backbones import *
@@ -10,7 +10,7 @@ from data_loader import *
 
 def pre_trainer(transformations, sigma_l, name_aug):
   frame_size   = 30
-  EPOCHS = 50
+  EPOCHS = 30
   BATCH_SIZE = 32
   
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
@@ -34,7 +34,7 @@ def pre_trainer(transformations, sigma_l, name_aug):
   
   # Create an early stopping callback.
   
-  con=3
+  con=8
   ks=3
   def trunk():
     input_ = Input(shape=(frame_size,x_train.shape[-1]), name='input_')
@@ -43,7 +43,8 @@ def pre_trainer(transformations, sigma_l, name_aug):
     x = ReLU()(x)
     x = MaxPooling1D(pool_size=4, strides=4)(x)
     x = Dropout(rate=0.1)(x)
-    x = resnetblock_final(x, CR=32*con, KS=ks)
+    x = Flatten()(x)
+    #x = resnetblock_final(x, CR=32*con, KS=ks)
     return tf.keras.models.Model(input_,x,name='trunk_')
     
   inputs = []
@@ -114,28 +115,5 @@ def pre_trainer(transformations, sigma_l, name_aug):
     history=model.fit(x_, y_, epochs=EPOCHS, shuffle=True, callbacks=[Logger()], verbose=False, batch_size=BATCH_SIZE)
   
   fet_extrct=model.layers[len(transformations)]
-  
-  folder_train = ["TrainingSet","TestingSet_secret", "TestingSet"]
-  x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
-  x_train = norma_pre(x_train)
-  enc_results = fet_extrct(x_train)
-  enc_results = np.array(enc_results)
-  X_embedded = TSNE(n_components=2).fit_transform(enc_results)
-  fig4 = plt.figure(figsize=(18,12))
-  plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.title('scen_1_'+name_aug)
-  plt.savefig('graphs/latentspace_scen_1_'+name_aug+'.png')
-  plt.close(fig4)
-  
-  x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
-  x_train = norma_pre(x_train)
-  enc_results = fet_extrct(x_train)
-  enc_results = np.array(enc_results)
-  X_embedded = TSNE(n_components=2).fit_transform(enc_results)
-  fig4 = plt.figure(figsize=(18,12))
-  plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.title('scen_3_'+name_aug)
-  plt.savefig('graphs/latentspace_scen_3_'+name_aug+'.png')
-  plt.close(fig4)
   
   return fet_extrct

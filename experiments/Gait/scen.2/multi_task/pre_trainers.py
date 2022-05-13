@@ -11,8 +11,8 @@ def pre_trainer():
   frame_size   = 128
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/gait_dataset/idnet/"
   
-  users_2 = list(range(17,51)) #Users for dataset 2
-  users_1 = list(range(1,17)) #Users for dataset 1
+  users_2 = [14, 15, 16, 17, 20, 21, 22, 23, 32, 36, 37, 38, 39, 41, 43, 44, 45, 46, 47, 48, 49, 50] #Users for dataset 2
+  users_1 = [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] #Users for dataset 1
   
   x_train, y_train, x_val, y_val, x_test, y_test, sessions = data_loader_gait(path, classes=users_1, frame_size=frame_size)
   print("training samples : ", x_train.shape[0])

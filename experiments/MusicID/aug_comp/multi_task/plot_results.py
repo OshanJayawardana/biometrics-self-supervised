@@ -17,10 +17,10 @@ transformation_list=[np.array([DA_Jitter]),
                     np.array([DA_Negation]),
                     np.array([DA_ChannelShuffle]),
                     np.array([DA_Permutation]),
-                    np.array([DA_Jitter, DA_Scaling]),
-                    np.array([DA_MagWarp, DA_Drop]),
-                    np.array([DA_Jitter, DA_Scaling, DA_MagWarp, DA_Drop]),
-                    np.array([DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop]),
+                    #np.array([DA_Jitter, DA_Scaling]),
+                    #np.array([DA_MagWarp, DA_Drop]),
+                    #np.array([DA_Jitter, DA_Scaling, DA_MagWarp, DA_Drop]),
+                    #np.array([DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop]),
                     np.array([DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop, DA_TimeWarp, DA_Negation, DA_ChannelShuffle, DA_Permutation])]
                     
 #transformation_list=[np.array([DA_Jitter]),
@@ -36,10 +36,10 @@ sigma_lst=[np.array([0.1*con]), #Noise
           np.array([None]), #Negation
           np.array([None]), #Channel shuffle
           np.array([0.1*con]), #Permutations
-          np.array([0.1*con,0.2*con]), #Noise,scale
-          np.array([0.2*con,3]), #Magnitude Warp, Drop
-          np.array([0.1*con,0.2*con,0.2*con,3]), #Noise,scale,Magnitude Warp, Drop
-          np.array([0.1*con, 0.2*con, 0.2*con, None, None, 3]), #all1 DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop
+          #np.array([0.1*con,0.2*con]), #Noise,scale
+          #np.array([0.2*con,3]), #Magnitude Warp, Drop
+          #np.array([0.1*con,0.2*con,0.2*con,3]), #Noise,scale,Magnitude Warp, Drop
+          #np.array([0.1*con, 0.2*con, 0.2*con, None, None, 3]), #all1 DA_Jitter, DA_Scaling, DA_MagWarp, DA_RandSampling, DA_Flip, DA_Drop
           np.array([0.1*con, 0.2*con, 0.2*con, None, None, 3, 0.2*con, None, None, 0.1*con])] #all
 #sigma_lst=[np.array([0.1]),
 #          np.array([0.2])]
@@ -49,7 +49,11 @@ name_list=["Noise", "Scaling", "Magnitude Warp", "Random Sampling", "Flip", "Dro
           "Negation",
           "Channel shuffle",
           "Permutations",
-          "Noise,scale", "Magnitude Warp, Drop", "Noise,scale,Magnitude Warp, Drop","all_0", "all_1"]
+          #"Noise,scale",
+          #"Magnitude Warp, Drop",
+          #"Noise,scale,Magnitude Warp, Drop",
+          #"all_0",
+          "all"]
 #name_list=["Noise", "Scaling"]
 
 model_name="musicid_aug_comp_multi task"
@@ -65,8 +69,9 @@ for transformations, sigma_l, name in zip(transformation_list, sigma_lst, name_l
   kappa_temp_1=[]
   acc_temp_3=[]
   kappa_temp_3=[]
+  fet_extrct = pre_trainer(transformations, sigma_l, name)
   for itr in range(iters):
-    fet_extrct = pre_trainer(transformations, sigma_l, name)
+    #fet_extrct = pre_trainer(transformations, sigma_l, name)
     test_acc_1, kappa_score_1 = trainer(60, fet_extrct,scen=1, ft=0)
     test_acc_3, kappa_score_3 = trainer(60, fet_extrct,scen=3, ft=0)
     acc_temp_1.append(test_acc_1)

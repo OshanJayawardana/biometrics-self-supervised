@@ -18,17 +18,17 @@ from transformations import *
 
 def pre_trainer(config_num):
   
-  transformations1, transformations2 = [DA_Scaling], [DA_Jitter]
+  transformations1, transformations2 = [DA_Scaling], [DA_Flip]
   
   frame_size   = 30
-  BATCH_SIZE = 40
+  BATCH_SIZE = 32
   origin = False
-  EPOCHS = 100
+  EPOCHS = 30
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/musicid_dataset/"
   
   users_2 = list(range(7,21)) #Users for dataset 2
-  users_1 = users = list(range(1,7)) #Users for dataset 1
-  folder_train = ["TrainingSet","TestingSet_secret", "TestingSet"]
+  users_1 = users = list(range(1,7)) #Users for dataset 1 
+  folder_train = ["TrainingSet"]
   
   x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
   print("training samples : ", x_train.shape[0])
@@ -84,23 +84,24 @@ def pre_trainer(config_num):
   mlp_s=2048
   num_training_samples = len(x_train)
   steps = EPOCHS * (num_training_samples // BATCH_SIZE)
-  lr_decayed_fn = tf.keras.experimental.CosineDecay(
-      initial_learning_rate=5e-5, decay_steps=steps
-  )
+  #lr_decayed_fn = tf.keras.experimental.CosineDecay(
+      #initial_learning_rate=5e-5, decay_steps=steps)
+      
+  lr_decayed_fn = tf.keras.optimizers.schedules.ExponentialDecay(initial_learning_rate = 0.00003, decay_rate=0.95, decay_steps=1000)# 0.0001, 0.9, 100000
+  opt = tf.keras.optimizers.Adam(lr_decayed_fn)
   
   # Create an early stopping callback.
   early_stopping = tf.keras.callbacks.EarlyStopping(
-      monitor="loss", patience=5, restore_best_weights=True, min_delta=0.0001
+      monitor="loss", patience=5, restore_best_weights=True, min_delta=0.01
   )
   
-  # Compile model and start training.
-  #SGD(lr_decayed_fn, momentum=0.9)
   
   en = get_encoder(frame_size,x_train.shape[-1],mlp_s, config_num,origin)
   en.summary()
   
   contrastive = Contrastive(get_encoder(frame_size, x_train.shape[-1], mlp_s, config_num, origin), get_predictor(mlp_s, origin))
-  contrastive.compile(optimizer=tf.keras.optimizers.Adam(lr_decayed_fn))
+  #contrastive.compile(optimizer=tf.keras.optimizers.Adam(lr_decayed_fn))
+  contrastive.compile(optimizer=opt)
   
   history = contrastive.fit(ssl_ds, epochs=EPOCHS, callbacks=[early_stopping])
   
@@ -113,27 +114,5 @@ def pre_trainer(config_num):
   backbone = backbone.layers[1]
   
   backbone.summary()
-  
-  x_train, y_train, sessions_train = data_load_origin(path, users=users_1, folders=folder_train, frame_size=30)
-  x_train = norma_pre(x_train)
-  enc_results = backbone(x_train)
-  enc_results = np.array(enc_results)
-  X_embedded = TSNE(n_components=2).fit_transform(enc_results)
-  fig4 = plt.figure(figsize=(18,12))
-  plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.title('scen_1_'+str(config_num+1))
-  plt.savefig('graphs/latentspace_scen_1_'+str(config_num+1)+'.png')
-  plt.close(fig4)
-  
-  x_train, y_train, sessions_train = data_load_origin(path, users=users_2, folders=folder_train, frame_size=30)
-  x_train = norma_pre(x_train)
-  enc_results = backbone(x_train)
-  enc_results = np.array(enc_results)
-  X_embedded = TSNE(n_components=2).fit_transform(enc_results)
-  fig4 = plt.figure(figsize=(18,12))
-  plt.scatter(X_embedded[:,0], X_embedded[:,1], c=y_train)
-  plt.title('scen_1_'+str(config_num+1))
-  plt.savefig('graphs/latentspace_scen_3_'+str(config_num+1)+'.png')
-  plt.close(fig4)
   
   return backbone

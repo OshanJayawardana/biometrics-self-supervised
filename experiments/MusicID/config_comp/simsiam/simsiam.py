@@ -16,7 +16,7 @@ def get_encoder(frame_size,ftr,mlp_s, config_num,origin):
     # Input and backbone.
     inputs = layers.Input((frame_size,ftr))
     
-    trunk_lst = [trunk_1, trunk_2, trunk_3, trunk_4, trunk_5, trunk_6]
+    trunk_lst = [trunk_1, trunk_2, trunk_3, trunk_4, trunk_5, trunk_6, trunk_7]
     trunk=trunk_lst[config_num]
     trunk=trunk(frame_size, ft_len=ftr)
     

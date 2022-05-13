@@ -55,7 +55,7 @@ def DA_Rotation(X,sigma=0):
     angle = np.random.uniform(low=-np.pi, high=np.pi)
     return np.matmul(X , axangle2mat(axis,angle))
 
-def DA_Permutation(X, nPerm=4, minSegLength=10, sigma=0):
+def DA_Permutation(X, nPerm=1, minSegLength=10, sigma=0):
     X_new = np.zeros(X.shape)
     idx = np.random.permutation(nPerm)
     bWhile = True

@@ -24,8 +24,8 @@ def trainer(samples_per_user, fet_extrct, ft):
   frame_size   = 128
   path = "/home/oshanjayawardanav100/biometrics-self-supervised/gait_dataset/idnet/"
   
-  users_2 = list(range(17,51)) #Users for dataset 2
-  users_1 = list(range(1,17)) #Users for dataset 1
+  users_2 = [14, 15, 16, 17, 20, 21, 22, 23, 32, 36, 37, 38, 39, 41, 43, 44, 45, 46, 47, 48, 49, 50] #Users for dataset 2
+  users_1 = [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] #Users for dataset 1
   
   x_train, y_train, x_val, y_val, x_test, y_test, sessions = data_loader_gait(path, classes=users_1+users_2, frame_size=frame_size)
   
@@ -58,7 +58,7 @@ def trainer(samples_per_user, fet_extrct, ft):
   optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
   #optimizer = tf.keras.optimizers.Adam()
   resnettssd.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'] )
-  history = resnettssd.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=100, callbacks=callback, batch_size=8)
+  history = resnettssd.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=100, callbacks=callback, batch_size=32)
   
   results = resnettssd.evaluate(x_test,y_test)
   test_acc = results[1]

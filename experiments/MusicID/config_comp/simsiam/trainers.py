@@ -72,7 +72,7 @@ def trainer(samples_per_user, fet_extrct, scen, ft):
   optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
   #optimizer = tf.keras.optimizers.Adam()
   resnettssd.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'] )
-  history = resnettssd.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=100, callbacks=callback, batch_size=8)
+  history = resnettssd.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=30, batch_size=32)
   
   results = resnettssd.evaluate(x_test,y_test)
   test_acc = results[1]
